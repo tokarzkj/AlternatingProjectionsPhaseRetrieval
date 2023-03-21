@@ -49,12 +49,14 @@ if __name__ == '__main__':
     fig, ax1 = plt.subplots(1, 2)
 
     ax1[0].set_title('Real Part')
-    ax1[0].stem([real(e) for e in x], markerfmt='o')
-    ax1[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+')
+    true1 = ax1[0].stem([real(e) for e in x], markerfmt='o', label='True')
+    recovered1 = ax1[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
 
     ax1[1].set_title('Real Part')
-    ax1[1].stem([imag(e) for e in x], markerfmt='o')
-    ax1[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+')
+    true2 = ax1[1].stem([imag(e) for e in x], markerfmt='o', label='True')
+    recovered2 = ax1[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+
+    fig.legend(handles=[true2, recovered2])
 
     plt.show()
 
