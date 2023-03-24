@@ -3,6 +3,8 @@ import scipy
 import matplotlib.pyplot as plt
 from numpy import real, imag
 
+import measurement
+
 
 def signum(value):
     # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.
@@ -22,16 +24,7 @@ if __name__ == '__main__':
     np.random.seed(3140)
     x = np.random.rand(N) + 1J*np.random.rand(N)
 
-    A = np.zeros((m, N), dtype=np.complex_)
-
-    # Create a diagonal matrix of 1s
-    diag = np.zeros((N, N))
-    for i in range(0, N):
-        diag[i][i] = 1
-
-    for i in range(0, int(m/N)):
-        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * (np.random.rand(N) + 1J * np.random.rand(N)))
-
+    A = measurement.create_measurement_matrix(m, N)
     inverse_A = scipy.linalg.pinv(A)
 
     # Measurements (magnitude of masked DFT coefficients)
@@ -54,7 +47,7 @@ if __name__ == '__main__':
     fig.subplots_adjust(left=0.05, right=0.95, top=0.90, bottom=0.1, hspace=0.75)
 
     ax1[0].set_title('Real Part')
-    ax1[0].stem([real(e) for e in x], markerfmt='x', label='True' )
+    ax1[0].stem([real(e) for e in x], markerfmt='x', label='True')
     ax1[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
 
     ax1[1].set_title('Real Part')
