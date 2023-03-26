@@ -50,34 +50,15 @@ class MainPage(QtWidgets.QWidget):
         N = int(self.samples_value.text())  # N Samples
         mask_count = int(self.mask_combo_box.currentText())
         m = mask_count * N
-        numberIterations = 600
+        number_iterations = 600
 
         # Need to set particular seed or the recovery values won't always align as expected
         # If you leave it blank the odds of success will be dependent on number of masks
         seed = self.seed_value.text()
-        if len(seed) > 0:
-            seed = int(seed)
-            np.random.seed(seed)
 
+        (x, x_recon, phasefac, error) = measurement.alternate_phase_projection(N, m, number_iterations, seed)
 
-        x = np.random.rand(N) + 1J * np.random.rand(N)
-
-        A = measurement.create_measurement_matrix(m, N)
-        inverse_A = scipy.linalg.pinv(A)
-
-        # Measurements (magnitude of masked DFT coefficients)
-        b = np.abs(np.matmul(A, x))
-
-        x_recon = np.random.rand(N) + 1J * np.random.rand(N)
-
-        for i in range(0, numberIterations):
-            temp = np.array(list(map(signum, np.matmul(A, x_recon))), dtype=np.complex_)
-            x_recon = np.matmul(inverse_A, np.multiply(b, temp))
-
-        phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
-        x_recon = np.multiply(x_recon, signum(phasefac))
-
-        print(np.linalg.norm(x - x_recon) / np.linalg.norm(x))
+        print(error)
 
         fig, ax1 = plt.subplots(1, 2)
         fig.set_figheight(7)
@@ -97,10 +78,6 @@ class MainPage(QtWidgets.QWidget):
         plt.show()
 
 
-def signum(value):
-    # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.
-    if imag(value) == 0J:
-        return np.sign(value)
-    else:
-        return value / np.abs(value)
+
+
 
