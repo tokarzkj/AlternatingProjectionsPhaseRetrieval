@@ -25,7 +25,7 @@ def create_measurement_matrix(m, N):
     return A
 
 
-def alternate_phase_projection(N, m, number_iterations, seed):
+def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
     if len(seed) > 0:
         seed = int(seed)
         np.random.seed(seed)
@@ -37,6 +37,13 @@ def alternate_phase_projection(N, m, number_iterations, seed):
 
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
+
+    if do_add_noise:
+        snr = 40    # 40db of noise
+        signal_power = np.square(np.linalg.norm(b)) / len(b)
+        noise_power = signal_power / np.power(10, snr/10)
+        noise = np.sqrt(noise_power) * np.random.rand(len(b))
+        b = np.add(b, noise)
 
     x_recon = np.random.rand(N) + 1J * np.random.rand(N)
 

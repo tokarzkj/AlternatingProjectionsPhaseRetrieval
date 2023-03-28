@@ -40,6 +40,9 @@ class MainPage(QtWidgets.QWidget):
         self.trials_value = QtWidgets.QLineEdit()
         self.trials_value.setText('50')
 
+        self.snr_checkbox_label = QtWidgets.QLabel('Add Noise?')
+        self.snr_checkbox = QtWidgets.QCheckBox()
+
         self.graph_random_projection_button = QtWidgets.QPushButton('Graph Recovery')
         self.graph_random_projection_button.clicked.connect(self.graph)
 
@@ -55,8 +58,10 @@ class MainPage(QtWidgets.QWidget):
         self.layout.addWidget(self.mask_combo_box, 2, 1)
         self.layout.addWidget(self.trials_label, 3, 0)
         self.layout.addWidget(self.trials_value, 3, 1)
-        self.layout.addWidget(self.graph_random_projection_button, 4, 0)
-        self.layout.addWidget(self.trials_button, 5, 0)
+        self.layout.addWidget(self.snr_checkbox_label, 4, 0)
+        self.layout.addWidget(self.snr_checkbox, 4, 1)
+        self.layout.addWidget(self.graph_random_projection_button, 5, 0)
+        self.layout.addWidget(self.trials_button, 6, 0)
 
     @QtCore.Slot()
     def graph(self):
@@ -68,8 +73,9 @@ class MainPage(QtWidgets.QWidget):
         # Need to set particular seed or the recovery values won't always align as expected
         # If you leave it blank the odds of success will be dependent on number of masks
         seed = self.seed_value.text()
+        do_add_noise = self.snr_checkbox.isChecked()
 
-        (x, x_recon, phasefac, error) = measurement.alternate_phase_projection(N, m, number_iterations, seed)
+        (x, x_recon, phasefac, error) = measurement.alternate_phase_projection(N, m, number_iterations, seed, do_add_noise)
 
         print(error)
 
@@ -117,6 +123,7 @@ class TrialsWindow(QtWidgets.QWidget):
 
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
+        do_add_noise = self.snr_checkbox.isChecked()
 
         # Begin the alternating projection process. Store the errors for averaging later
         # and assign them to table cells as they are calculated.
@@ -126,7 +133,7 @@ class TrialsWindow(QtWidgets.QWidget):
                 # Calculate the new mask length required for the mask we are currently working against.
                 m = j * N
                 # We don't want to seed our random data.
-                (_, _, _, error) = measurement.alternate_phase_projection(N, m, number_iterations, '')
+                (_, _, _, error) = measurement.alternate_phase_projection(N, m, number_iterations, '', do_add_noise)
                 trial_errors[j - 1, i] = error
 
                 item = QTableWidgetItem()
