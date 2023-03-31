@@ -101,16 +101,16 @@ class MainPage(QtWidgets.QWidget):
         N = int(self.samples_value.text())  # N Samples
         mask_count = int(self.mask_combo_box.currentText())
         number_iterations = 600
-        seed = self.seed_value.text()
         trials_count = int(self.trials_value.text())
+        do_add_noise = self.snr_checkbox.isChecked()
 
-        self.trials_window = TrialsWindow(N, mask_count,number_iterations, trials_count)
+        self.trials_window = TrialsWindow(N, mask_count,number_iterations, trials_count, do_add_noise)
         self.trials_window.resize(600, 800)
         self.trials_window.show()
 
 
 class TrialsWindow(QtWidgets.QWidget):
-    def __init__(self, N, mask_count, number_iterations, trials_count):
+    def __init__(self, N, mask_count, number_iterations, trials_count, do_add_noise):
         super().__init__()
 
         lowest_mask_count = 1
@@ -123,7 +123,6 @@ class TrialsWindow(QtWidgets.QWidget):
 
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
-        do_add_noise = self.snr_checkbox.isChecked()
 
         # Begin the alternating projection process. Store the errors for averaging later
         # and assign them to table cells as they are calculated.
