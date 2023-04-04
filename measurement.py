@@ -19,8 +19,10 @@ def create_measurement_matrix(m, N):
     for i in range(0, N):
         diag[i][i] = 1
 
+    mask = np.random.rand(N) + 1J * np.random.rand(N)
     for i in range(0, int(m / N)):
-        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * (np.random.rand(N) + 1J * np.random.rand(N)))
+        shifted_mask = np.roll(mask, int(i*np.round(N/(m/N))))
+        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
 
     return A
 
