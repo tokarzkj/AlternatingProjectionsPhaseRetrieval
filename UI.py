@@ -23,7 +23,7 @@ class MainPage(QtWidgets.QWidget):
         self.seed_value = QtWidgets.QLineEdit()
         self.seed_value.setText('3140')
 
-        self.mask_label = QtWidgets.QLabel('Seed')
+        self.mask_label = QtWidgets.QLabel('# of Masks')
         self.mask_combo_box = QtWidgets.QComboBox()
         self.mask_combo_box.addItem('2')
         self.mask_combo_box.addItem('3')
