@@ -71,7 +71,7 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     x = np.random.rand(N) + 1J * np.random.rand(N)
 
     A = create_measurement_matrix(m, N)
-    inverse_A = scipy.linalg.pinv(A)
+
 
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
@@ -79,7 +79,12 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     if do_add_noise:
         b = simulate_noise_in_measurement(b)
 
-    x_recon = initial_x_reconstruction_signal(A, N, b, inverse_A, number_iterations)
+    perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
+    perturbation = np.multiply(perturbation, 1/np.power(10, 4))
+
+    perturbed_A = np.subtract(A, perturbation)
+    inverse_perturbed_A = scipy.linalg.pinv(A)
+    x_recon = initial_x_reconstruction_signal(perturbed_A, N, b, inverse_perturbed_A, number_iterations)
 
     phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
     x_recon = np.multiply(x_recon, signum(phasefac))
