@@ -46,6 +46,9 @@ class MainPage(QtWidgets.QWidget):
         self.graph_random_projection_button = QtWidgets.QPushButton('Graph Recovery')
         self.graph_random_projection_button.clicked.connect(self.graph)
 
+        self.modified_graph_random_projection_button = QtWidgets.QPushButton('Modified Graph Recovery')
+        self.modified_graph_random_projection_button.clicked.connect(self.modified_recovery_graph)
+
         self.trials_button = QtWidgets.QPushButton('Calc Trials')
         self.trials_button.clicked.connect(self.trials)
 
@@ -61,7 +64,8 @@ class MainPage(QtWidgets.QWidget):
         self.layout.addWidget(self.snr_checkbox_label, 4, 0)
         self.layout.addWidget(self.snr_checkbox, 4, 1)
         self.layout.addWidget(self.graph_random_projection_button, 5, 0)
-        self.layout.addWidget(self.trials_button, 6, 0)
+        self.layout.addWidget(self.modified_graph_random_projection_button, 6, 0)
+        self.layout.addWidget(self.trials_button, 7, 0)
 
     @QtCore.Slot()
     def graph(self):
@@ -75,26 +79,31 @@ class MainPage(QtWidgets.QWidget):
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
 
-        (x, x_recon, phasefac, error) = measurement.alternate_phase_projection(N, m, number_iterations, seed, do_add_noise)
+        (x, x_recon, phasefac, error) = measurement.alternate_phase_projection(N, m, number_iterations, seed,
+                                                                               do_add_noise)
 
         print(error)
 
-        fig, ax1 = plt.subplots(1, 2)
-        fig.set_figheight(7)
-        fig.set_figwidth(15)
-        fig.subplots_adjust(left=0.05, right=0.95, top=0.90, bottom=0.1, hspace=0.75)
+        self.graph_recovery(x, x_recon)
 
-        ax1[0].set_title('Real Part')
-        ax1[0].stem([real(e) for e in x], markerfmt='x', label='True')
-        ax1[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+    @QtCore.Slot()
+    def modified_recovery_graph(self):
+        N = int(self.samples_value.text())  # N Samples
+        mask_count = int(self.mask_combo_box.currentText())
+        m = mask_count * N
+        number_iterations = 600
 
-        ax1[1].set_title('Real Part')
-        true2 = ax1[1].stem([imag(e) for e in x], markerfmt='x', label='True')
-        recovered2 = ax1[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        # Need to set particular seed or the recovery values won't always align as expected
+        # If you leave it blank the odds of success will be dependent on number of masks
+        seed = self.seed_value.text()
+        do_add_noise = self.snr_checkbox.isChecked()
 
-        fig.legend(handles=[true2, recovered2])
+        (x, x_recon, phasefac, error) = measurement.modified_alternate_phase_projection(N, m, number_iterations, seed,
+                                                                                        do_add_noise)
 
-        plt.show()
+        print(error)
+
+        self.graph_recovery(x, x_recon)
 
     @QtCore.Slot()
     def trials(self):
@@ -104,9 +113,24 @@ class MainPage(QtWidgets.QWidget):
         trials_count = int(self.trials_value.text())
         do_add_noise = self.snr_checkbox.isChecked()
 
-        self.trials_window = TrialsWindow(N, mask_count,number_iterations, trials_count, do_add_noise)
+        self.trials_window = TrialsWindow(N, mask_count, number_iterations, trials_count, do_add_noise)
         self.trials_window.resize(600, 800)
         self.trials_window.show()
+
+    @staticmethod
+    def graph_recovery(x, x_recon):
+        fig, ax1 = plt.subplots(1, 2)
+        fig.set_figheight(7)
+        fig.set_figwidth(15)
+        fig.subplots_adjust(left=0.05, right=0.95, top=0.90, bottom=0.1, hspace=0.75)
+        ax1[0].set_title('Real Part')
+        ax1[0].stem([real(e) for e in x], markerfmt='x', label='True')
+        ax1[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        ax1[1].set_title('Real Part')
+        true2 = ax1[1].stem([imag(e) for e in x], markerfmt='x', label='True')
+        recovered2 = ax1[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        fig.legend(handles=[true2, recovered2])
+        plt.show()
 
 
 class TrialsWindow(QtWidgets.QWidget):
@@ -158,4 +182,3 @@ class TrialsWindow(QtWidgets.QWidget):
 
         self.table.resize(600, 800)
         self.table.show()
-
