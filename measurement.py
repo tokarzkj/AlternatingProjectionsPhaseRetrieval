@@ -83,7 +83,7 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     perturbation = np.multiply(perturbation, 1/np.power(10, 4))
 
     perturbed_A = np.subtract(A, perturbation)
-    inverse_perturbed_A = scipy.linalg.pinv(A)
+    inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)
     x_recon = initial_x_reconstruction_signal(perturbed_A, N, b, inverse_perturbed_A, number_iterations)
 
     phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
