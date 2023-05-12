@@ -3,16 +3,18 @@ from random import random
 import numpy as np
 from PySide6 import QtCore, QtWidgets
 import scipy
-from PySide6.QtWidgets import QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QTabWidget, QWidget
 from numpy import imag, real
 import matplotlib.pyplot as plt
 
 import measurement
 
 
-class MainPage(QtWidgets.QWidget):
+class MainPage(QtWidgets.QTabWidget):
     def __init__(self, parent=None):
         super().__init__()
+
+        self.alternating_project_phase_retrieval_tab = QWidget()
 
         self.trials_window = None
         self.samples_label = QtWidgets.QLabel('Sample Count')
@@ -52,20 +54,22 @@ class MainPage(QtWidgets.QWidget):
         self.trials_button = QtWidgets.QPushButton('Calc Trials')
         self.trials_button.clicked.connect(self.trials)
 
-        self.layout = QtWidgets.QGridLayout(self)
-        self.layout.addWidget(self.samples_label, 0, 0)
-        self.layout.addWidget(self.samples_value, 0, 1)
-        self.layout.addWidget(self.seed_label, 1, 0)
-        self.layout.addWidget(self.seed_value, 1, 1)
-        self.layout.addWidget(self.mask_label, 2, 0)
-        self.layout.addWidget(self.mask_combo_box, 2, 1)
-        self.layout.addWidget(self.trials_label, 3, 0)
-        self.layout.addWidget(self.trials_value, 3, 1)
-        self.layout.addWidget(self.snr_checkbox_label, 4, 0)
-        self.layout.addWidget(self.snr_checkbox, 4, 1)
-        self.layout.addWidget(self.graph_random_projection_button, 5, 0)
-        self.layout.addWidget(self.modified_graph_random_projection_button, 6, 0)
-        self.layout.addWidget(self.trials_button, 7, 0)
+        self.alternating_project_phase_retrieval_tab.layout = QtWidgets.QGridLayout(self)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.samples_label, 0, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.samples_value, 0, 1)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.seed_label, 1, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.seed_value, 1, 1)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.mask_label, 2, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.mask_combo_box, 2, 1)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.trials_label, 3, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.trials_value, 3, 1)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.snr_checkbox_label, 4, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.snr_checkbox, 4, 1)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.graph_random_projection_button, 5, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.modified_graph_random_projection_button, 6, 0)
+        self.alternating_project_phase_retrieval_tab.layout.addWidget(self.trials_button, 7, 0)
+
+        self.addTab(self.alternating_project_phase_retrieval_tab, "Alternating Projection")
 
     @QtCore.Slot()
     def graph(self):
