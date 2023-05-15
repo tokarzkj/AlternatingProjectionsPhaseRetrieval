@@ -1,15 +1,7 @@
-from random import random
-
-import numpy as np
 from PySide6 import QtCore, QtWidgets
-import scipy
-from PySide6.QtWidgets import QTableWidget, QTableWidgetItem, QTabWidget, QWidget
-from numpy import imag, real
-import matplotlib.pyplot as plt
 
-import measurement
-from Widgets.TrialsWindow import TrialsWindow
-from Widgets.alternating_projection import AlternatingProjectTab, ModifiedAlternatingProjectTab
+from Widgets.alternating_projection import AlternatingProjectTab
+from Widgets.modified_alternating_projection import ModifiedAlternatingProjectTab
 
 
 class MainPage(QtWidgets.QTabWidget):

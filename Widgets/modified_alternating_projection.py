@@ -7,7 +7,7 @@ from numpy import real, imag
 import measurement
 
 
-class AlternatingProjectTab(QWidget):
+class ModifiedAlternatingProjectTab(QWidget):
     def __init__(self, parent=None):
         super().__init__()
 
@@ -40,8 +40,8 @@ class AlternatingProjectTab(QWidget):
         self.snr_checkbox_label = QtWidgets.QLabel('Add Noise?')
         self.snr_checkbox = QtWidgets.QCheckBox()
 
-        self.graph_random_projection_button = QtWidgets.QPushButton('Graph Recovery')
-        self.graph_random_projection_button.clicked.connect(self.graph)
+        self.modified_graph_random_projection_button = QtWidgets.QPushButton('Modified Graph Recovery')
+        self.modified_graph_random_projection_button.clicked.connect(self.modified_recovery_graph)
 
         self.trials_button = QtWidgets.QPushButton('Calc Trials')
         self.trials_button.clicked.connect(self.trials)
@@ -57,12 +57,12 @@ class AlternatingProjectTab(QWidget):
         self.layout.addWidget(self.trials_value, 3, 1)
         self.layout.addWidget(self.snr_checkbox_label, 4, 0)
         self.layout.addWidget(self.snr_checkbox, 4, 1)
-        self.layout.addWidget(self.graph_random_projection_button, 5, 0)
+        self.layout.addWidget(self.modified_graph_random_projection_button, 5, 0)
         self.layout.addWidget(self.trials_button, 6, 0)
 
 
     @QtCore.Slot()
-    def graph(self):
+    def modified_recovery_graph(self):
         N = int(self.samples_value.text())  # N Samples
         mask_count = int(self.mask_combo_box.currentText())
         m = mask_count * N
@@ -73,21 +73,19 @@ class AlternatingProjectTab(QWidget):
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
 
-        (x, x_recon, phasefac, error) = measurement.alternate_phase_projection(N, m, number_iterations, seed,
-                                                                               do_add_noise)
+        (x, x_recon, phasefac, error) = measurement.modified_alternate_phase_projection(N, m, number_iterations, seed,
+                                                                                        do_add_noise)
 
         print(error)
 
         self.graph_recovery(x, x_recon)
 
-
     @QtCore.Slot()
     def trials(self):
-        N = int(self.samples_value.text())  # N Samples
-        mask_count = int(self.mask_combo_box.currentText())
+        N = [50, 25, 10]
+        mask_count = [8, 6, 4]
         number_iterations = 600
-        trials_count = int(self.trials_value.text())
-        do_add_noise = self.snr_checkbox.isChecked()
+        trials_count = 25
 
         self.trials_window = TrialsWindow(N, mask_count, number_iterations, trials_count, do_add_noise)
         self.trials_window.resize(600, 800)
