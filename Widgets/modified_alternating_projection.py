@@ -12,6 +12,12 @@ class ModifiedAlternatingProjectTab(QWidget):
         super().__init__()
 
         self.trials_window = None
+        self.number_iterations = None
+        self.N = [10, 25, 50]
+        self.mask_count = [4, 6, 8]
+        self.number_iterations = 600
+        self.trials_count = 25
+        
         self.samples_label = QtWidgets.QLabel('Sample Count')
         self.samples_value = QtWidgets.QLineEdit()
         self.samples_value.setText('100')
@@ -60,7 +66,6 @@ class ModifiedAlternatingProjectTab(QWidget):
         self.layout.addWidget(self.modified_graph_random_projection_button, 5, 0)
         self.layout.addWidget(self.trials_button, 6, 0)
 
-
     @QtCore.Slot()
     def modified_recovery_graph(self):
         N = int(self.samples_value.text())  # N Samples
@@ -82,12 +87,21 @@ class ModifiedAlternatingProjectTab(QWidget):
 
     @QtCore.Slot()
     def trials(self):
-        N = [50, 25, 10]
-        mask_count = [8, 6, 4]
-        number_iterations = 600
+        results_by_sample_size = dict()
         trials_count = 25
+        for n in self.N:
+            results = []
+            for mc in self.mask_count:
+                trial_errors = np.zeros(trials_count, dtype=np.float_)
+                m = mc * n
+                for i in range(0, trials_count):
+                    (_, _, _, error) = measurement.modified_alternate_phase_projection(n, m, self.number_iterations, "", False)
+                    trial_errors[i] = error
+                results.append(np.average(trial_errors))
 
-        self.trials_window = TrialsWindow(N, mask_count, number_iterations, trials_count, do_add_noise)
+            results_by_sample_size[n] = results
+
+        self.trials_window = TrialsWindow(results_by_sample_size, self.N, self.mask_count)
         self.trials_window.resize(600, 800)
         self.trials_window.show()
 
@@ -108,51 +122,34 @@ class ModifiedAlternatingProjectTab(QWidget):
 
 
 class TrialsWindow(QtWidgets.QWidget):
-    def __init__(self, N, mask_count, number_iterations, trials_count, do_add_noise):
+    def __init__(self, results_by_sample_size, N, mask_count):
         super().__init__()
 
-        lowest_mask_count = 1
         self.table = QTableWidget(self)
-        self.table.setRowCount(trials_count + 2)
+        self.table.setRowCount(3)
 
-        headers = []
-        for i in range(lowest_mask_count, mask_count + 1):
-            headers.append('Trial #' + str(i))
+        headers = ['Sample #']
+        for mc in mask_count:
+            headers.append('Mask Count ' + str(mc))
 
         self.table.setColumnCount(len(headers))
         self.table.setHorizontalHeaderLabels(headers)
 
-        # Begin the alternating projection process. Store the errors for averaging later
-        # and assign them to table cells as they are calculated.
-        trial_errors = np.zeros((mask_count, trials_count), dtype=np.float_)
-        for i in range(0, trials_count):
-            for j in range(lowest_mask_count, mask_count + 1):
-                # Calculate the new mask length required for the mask we are currently working against.
-                m = j * N
-                # We don't want to seed our random data.
-                (_, _, _, error) = measurement.alternate_phase_projection(N, m, number_iterations, '', do_add_noise)
-                trial_errors[j - 1, i] = error
+        row = 0
+        for n in N:
+            results = results_by_sample_size[n]
 
+            item = QTableWidgetItem()
+            item.setData(0, 'Sample # ' + str(n))
+            self.table.setItem(row, 0, item)
+
+            for idx, value in enumerate(results):
                 item = QTableWidgetItem()
-                item.setData(0, '{:e}'.format(error))
-                self.table.setItem(i, j - 1, item)
+                item.setData(0, '{:e}'.format(value))
+                self.table.setItem(row, idx + 1, item)
 
-        # Calculate the average error for a given mask against all trial results.
-        avg_errors = np.zeros(mask_count)
-        for row in range(0, len(trial_errors)):
-            avg_errors[row] = np.average(trial_errors[row, :])
+            row += 1
 
-        # Add two rows. The first is a header saying avg error and the second is the average itself.
-        for i in range(0, mask_count):
-            row = trials_count
-
-            item = QTableWidgetItem()
-            item.setData(0, 'Avg Error' + str(i + 1))
-            self.table.setItem(row, i, item)
-
-            item = QTableWidgetItem()
-            item.setData(0, '{:e}'.format(avg_errors[i]))
-            self.table.setItem(row + 1, i, item)
 
         self.table.resize(600, 800)
         self.table.show()
