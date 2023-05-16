@@ -102,7 +102,7 @@ class AlternatingProjectTab(QWidget):
         ax1[0].set_title('Real Part')
         ax1[0].stem([real(e) for e in x], markerfmt='x', label='True')
         ax1[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
-        ax1[1].set_title('Real Part')
+        ax1[1].set_title('Imaginary Part')
         true2 = ax1[1].stem([imag(e) for e in x], markerfmt='x', label='True')
         recovered2 = ax1[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
         fig.legend(handles=[true2, recovered2])
