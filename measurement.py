@@ -3,30 +3,6 @@ import scipy
 from numpy import imag
 
 
-def signum(value):
-    # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.
-    if imag(value) == 0J:
-        return np.sign(value)
-    else:
-        return value / np.abs(value)
-
-
-def create_measurement_matrix(m, N):
-    A = np.zeros((m, N), dtype=np.complex_)
-
-    # Create a diagonal matrix of 1s
-    diag = np.zeros((N, N))
-    for i in range(0, N):
-        diag[i][i] = 1
-
-    mask = np.random.rand(N) + 1J * np.random.rand(N)
-    for i in range(0, int(m / N)):
-        shifted_mask = np.roll(mask, int(i*np.round(N/(m/N))))
-        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
-
-    return A
-
-
 def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
     """
     This is the basic algorithm for taking a signal with specified parameters and attempting to
@@ -103,6 +79,30 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
 
     return x, x_recon, phasefac, error
+
+
+def signum(value):
+    # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.
+    if imag(value) == 0J:
+        return np.sign(value)
+    else:
+        return value / np.abs(value)
+
+
+def create_measurement_matrix(m, N):
+    A = np.zeros((m, N), dtype=np.complex_)
+
+    # Create a diagonal matrix of 1s
+    diag = np.zeros((N, N))
+    for i in range(0, N):
+        diag[i][i] = 1
+
+    mask = np.random.rand(N) + 1J * np.random.rand(N)
+    for i in range(0, int(m / N)):
+        shifted_mask = np.roll(mask, int(i*np.round(N/(m/N))))
+        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
+
+    return A
 
 
 def initial_x_reconstruction_signal(A, N, b, inverse_A, number_iterations):
