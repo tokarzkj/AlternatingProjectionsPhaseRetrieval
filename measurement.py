@@ -19,8 +19,9 @@ def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
         np.random.seed(seed)
 
     x = np.random.rand(N) + 1J * np.random.rand(N)
+    mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N)
+    A = create_measurement_matrix(m, N, mask)
     inverse_A = scipy.linalg.pinv(A)
 
     # Measurements (magnitude of masked DFT coefficients)
@@ -56,8 +57,9 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
         np.random.seed(seed)
 
     x = np.random.rand(N) + 1J * np.random.rand(N)
+    mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N)
+    A = create_measurement_matrix(m, N, mask)
 
 
     # Measurements (magnitude of masked DFT coefficients)
@@ -89,7 +91,7 @@ def signum(value):
         return value / np.abs(value)
 
 
-def create_measurement_matrix(m, N):
+def create_measurement_matrix(m, N, mask):
     A = np.zeros((m, N), dtype=np.complex_)
 
     # Create a diagonal matrix of 1s
@@ -97,7 +99,6 @@ def create_measurement_matrix(m, N):
     for i in range(0, N):
         diag[i][i] = 1
 
-    mask = np.random.rand(N) + 1J * np.random.rand(N)
     for i in range(0, int(m / N)):
         shifted_mask = np.roll(mask, int(i*np.round(N/(m/N))))
         A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
