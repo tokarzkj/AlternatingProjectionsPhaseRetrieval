@@ -64,6 +64,17 @@ def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
 
 
 def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
+    """
+    This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
+    reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
+    beginning the recovery process to understand a real-world scenario of only approximately knowing A.
+    :param N: Length of signal
+    :param m: Number of masks
+    :param number_iterations: Number of iterations for reconstruction process
+    :param seed: seed for the random number generator
+    :param do_add_noise: Add noise to the phase-less measurement vector
+    :return:
+    """
     if len(seed) > 0:
         seed = int(seed)
         np.random.seed(seed)
