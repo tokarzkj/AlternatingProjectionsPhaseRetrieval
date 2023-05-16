@@ -40,7 +40,7 @@ def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
     return x, x_recon, phasefac, error
 
 
-def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
+def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_noise, x=None, mask=None):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -50,17 +50,21 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     :param number_iterations: Number of iterations for reconstruction process
     :param seed: seed for the random number generator
     :param do_add_noise: Add noise to the phase-less measurement vector
+    :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
+    :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
     :return:
     """
     if len(seed) > 0:
         seed = int(seed)
         np.random.seed(seed)
 
-    x = np.random.rand(N) + 1J * np.random.rand(N)
-    mask = np.random.rand(N) + 1J * np.random.rand(N)
+    if x is None:
+        x = np.random.rand(N) + 1J * np.random.rand(N)
+
+    if mask is None:
+        mask = np.random.rand(N) + 1J * np.random.rand(N)
 
     A = create_measurement_matrix(m, N, mask)
-
 
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
@@ -69,7 +73,7 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
         b = simulate_noise_in_measurement(b)
 
     perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
-    perturbation = np.multiply(perturbation, 1/np.power(10, 4))
+    perturbation = np.multiply(perturbation, 1 / np.power(10, 4))
 
     perturbed_A = np.subtract(A, perturbation)
     inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)
@@ -100,7 +104,7 @@ def create_measurement_matrix(m, N, mask):
         diag[i][i] = 1
 
     for i in range(0, int(m / N)):
-        shifted_mask = np.roll(mask, int(i*np.round(N/(m/N))))
+        shifted_mask = np.roll(mask, int(i * np.round(N / (m / N))))
         A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
 
     return A
