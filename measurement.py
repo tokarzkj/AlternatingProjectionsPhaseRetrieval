@@ -3,7 +3,8 @@ import scipy
 from numpy import imag
 
 
-def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
+def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise: bool,
+                               x=None, mask=None, do_time_shift_signal: bool = False):
     """
     This is the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements
@@ -12,16 +13,22 @@ def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
     :param number_iterations: Number of iterations for reconstruction process
     :param seed: seed for the random number generator
     :param do_add_noise: Add noise to the phase-less measurement vector
-    :return:
+    :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
+    :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
+    :param do_time_shift_signal: When True, the mask is shifted to the right during the construction of our recovery matrix A
+    :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
     """
-    if len(seed) > 0:
+    if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
         seed = int(seed)
         np.random.seed(seed)
 
-    x = np.random.rand(N) + 1J * np.random.rand(N)
-    mask = np.random.rand(N) + 1J * np.random.rand(N)
+    if x is None:
+        x = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N, mask)
+    if mask is None:
+        mask = np.random.rand(N) + 1J * np.random.rand(N)
+
+    A = create_measurement_matrix(m, N, mask, do_time_shift_signal)
     inverse_A = scipy.linalg.pinv(A)
 
     # Measurements (magnitude of masked DFT coefficients)
@@ -40,7 +47,8 @@ def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise):
     return x, x_recon, phasefac, error
 
 
-def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_noise, x=None, mask=None):
+def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_noise: bool,
+                                        x=None, mask=None, do_time_shift_signal: bool = False):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -52,9 +60,10 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
-    :return:
+    :param do_time_shift_signal: When True, the mask is shifted to the right during the construction of our recovery matrix A
+    :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
     """
-    if len(seed) > 0:
+    if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
         seed = int(seed)
         np.random.seed(seed)
 
@@ -64,7 +73,7 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
     if mask is None:
         mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N, mask)
+    A = create_measurement_matrix(m, N, mask, do_time_shift_signal)
 
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
@@ -95,7 +104,7 @@ def signum(value):
         return value / np.abs(value)
 
 
-def create_measurement_matrix(m, N, mask):
+def create_measurement_matrix(m, N, mask, do_time_shift_signal):
     A = np.zeros((m, N), dtype=np.complex_)
 
     # Create a diagonal matrix of 1s
@@ -104,7 +113,11 @@ def create_measurement_matrix(m, N, mask):
         diag[i][i] = 1
 
     for i in range(0, int(m / N)):
-        shifted_mask = np.roll(mask, int(i * np.round(N / (m / N))))
+        shift = int(i * np.round(N / (m / N)))
+        if do_time_shift_signal:
+            shift = shift * -1
+
+        shifted_mask = np.roll(mask, shift)
         A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
 
     return A
