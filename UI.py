@@ -2,7 +2,7 @@ from PySide6 import QtCore, QtWidgets
 
 from Widgets.alternating_projection import AlternatingProjectTab
 from Widgets.modified_alternating_projection import ModifiedAlternatingProjectTab
-from Widgets.time_shift_proof import TimeShiftProof
+from Widgets.signal_and_mask_recovery import SignalMaskRecovery
 
 
 class MainPage(QtWidgets.QTabWidget):
@@ -15,5 +15,5 @@ class MainPage(QtWidgets.QTabWidget):
         self.modified_alternating_project_phase_retrieval_tab = ModifiedAlternatingProjectTab()
         self.addTab(self.modified_alternating_project_phase_retrieval_tab, "Modified Alternating Projection")
 
-        self.time_shift_proof = TimeShiftProof()
-        self.addTab(self.time_shift_proof, "Time Shift Proof")
+        self.signal_and_mask_recovery = SignalMaskRecovery()
+        self.addTab(self.signal_and_mask_recovery, "Signal & Mask Recovery")

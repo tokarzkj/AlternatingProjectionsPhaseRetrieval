@@ -6,7 +6,7 @@ from PySide6.QtWidgets import QWidget, QTableWidgetItem, QTableWidget
 import measurement
 
 
-class TimeShiftProof(QWidget):
+class SignalMaskRecovery(QWidget):
     def __init__(self, parent=None):
         super().__init__()
 
