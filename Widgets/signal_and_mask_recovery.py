@@ -1,7 +1,7 @@
 import numpy as np
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QStandardItemModel, QStandardItem
-from PySide6.QtWidgets import QWidget, QTableWidgetItem, QTableWidget
+from PySide6.QtWidgets import QWidget
 
 import measurement
 
@@ -11,8 +11,11 @@ class SignalMaskRecovery(QWidget):
         super().__init__()
 
         self.N = 100
+        self.trial_count = 25
 
         self.run_button = QtWidgets.QPushButton('Run average')
+        self.run_button.setToolTip(f'Run the recovery {self.trial_count} times and calculate '
+                                   f'average error for the recovered signal and mask')
         self.run_button.clicked.connect(self.run_average)
 
         self.layout = QtWidgets.QGridLayout(self)
@@ -51,12 +54,11 @@ class SignalMaskRecovery(QWidget):
         m = 8 * self.N
         number_iterations = 600
         seed = 3140
-        trial_count = 25
 
-        signal_trial_errors = np.zeros(25, dtype=np.float_)
-        mask_trial_errors = np.zeros(25, dtype=np.float_)
+        signal_trial_errors = np.zeros(self.trial_count, dtype=np.float_)
+        mask_trial_errors = np.zeros(self.trial_count, dtype=np.float_)
 
-        for i in range(0, trial_count):
+        for i in range(0, self.trial_count):
             x = np.random.rand(self.N) + 1J * np.random.rand(self.N)
             mask = np.random.rand(self.N) + 1J * np.random.rand(self.N)
             mask_estimate = perturb_vec(mask)
