@@ -16,4 +16,4 @@ class MainPage(QtWidgets.QTabWidget):
         self.addTab(self.modified_alternating_project_phase_retrieval_tab, "Modified Alternating Projection")
 
         self.signal_and_mask_recovery = SignalMaskRecovery()
-        self.addTab(self.signal_and_mask_recovery, "Signal & Mask Recovery")
+        self.addTab(self.signal_and_mask_recovery, "Signal and Mask Recovery")

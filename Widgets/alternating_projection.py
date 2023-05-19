@@ -132,7 +132,7 @@ class TrialsWindow(QtWidgets.QWidget):
                 # Calculate the new mask length required for the mask we are currently working against.
                 m = j * N
                 # We don't want to seed our random data.
-                (_, _, _, error) = measurement.alternate_phase_projection(N, m, number_iterations, '', do_add_noise)
+                (_, _, _, error) = measurement.alternate_phase_projection(N, m, number_iterations, 0, do_add_noise)
                 trial_errors[j - 1, i] = error
 
                 item = QTableWidgetItem()

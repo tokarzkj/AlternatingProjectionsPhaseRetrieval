@@ -82,7 +82,7 @@ def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_no
         b = simulate_noise_in_measurement(b)
 
     perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
-    perturbation = np.multiply(perturbation, 1 / np.power(10, 4))
+    perturbation = np.multiply(perturbation, 1 / np.power(10, 6))
 
     perturbed_A = np.subtract(A, perturbation)
     inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)

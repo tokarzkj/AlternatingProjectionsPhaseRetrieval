@@ -9,7 +9,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
     # Create and show the form
     mainpage = UI.MainPage()
-    mainpage.resize(600, 800)
+    mainpage.resize(800, 800)
     mainpage.show()
     # Run the main Qt loop
     sys.exit(app.exec())
