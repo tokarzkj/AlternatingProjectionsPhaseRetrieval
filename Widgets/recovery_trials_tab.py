@@ -1,6 +1,6 @@
 import numpy as np
 from PySide6 import QtWidgets, QtCore
-from PySide6.QtWidgets import QWidget, QTableWidgetItem, QTableWidget
+from PySide6.QtWidgets import QWidget, QTableWidgetItem, QTableWidget, QTextEdit
 from matplotlib import pyplot as plt
 from numpy import real, imag
 
@@ -18,15 +18,29 @@ class RecoveryTrialsTab(QWidget):
         self.number_iterations = 600
         self.trials_count = 25
 
+        self.calc_trial_text = QTextEdit()
+        self.calc_trial_text.setText(
+            f"Calculate the average error of signal recovery with N {self.N} samples" +
+            f"m {self.mask_count} masks over {self.trials_count} trials using the default alternating projection recovery")
+        self.calc_trial_text.setReadOnly(True)
+        self.calc_trial_text.resize(-1, 5)
+
         self.trials_button = QtWidgets.QPushButton('Calc Trials')
         self.trials_button.clicked.connect(self.trials)
 
+        self.calc_modified_trial_text = QTextEdit()
+        self.calc_modified_trial_text.setText(
+            f"Calculate the average error of signal recovery with N {self.N} samples" +
+            f"m {self.mask_count} masks over {self.trials_count} trials using the modified alternating projection recovery")
+        self.calc_modified_trial_text.setReadOnly(True)
         self.modified_recovery_trials_button = QtWidgets.QPushButton('Modified Recovery Trials')
         self.modified_recovery_trials_button.clicked.connect(self.modified_recovery_trials)
 
         self.layout = QtWidgets.QGridLayout(self)
-        self.layout.addWidget(self.trials_button, 0, 0)
-        self.layout.addWidget(self.modified_recovery_trials_button, 1, 0)
+        self.layout.addWidget(self.calc_trial_text, 0, 0)
+        self.layout.addWidget(self.trials_button, 1, 0)
+        self.layout.addWidget(self.calc_modified_trial_text, 2, 0)
+        self.layout.addWidget(self.modified_recovery_trials_button, 3, 0)
 
     @QtCore.Slot()
     def trials(self):
