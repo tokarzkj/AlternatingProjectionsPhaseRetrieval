@@ -7,17 +7,11 @@ from numpy import real, imag
 import measurement
 
 
-class ModifiedAlternatingProjectTab(QWidget):
+class RecoveryGraphTab(QWidget):
     def __init__(self, parent=None):
         super().__init__()
 
         self.trials_window = None
-        self.number_iterations = None
-        self.N = [10, 25, 50]
-        self.mask_count = [4, 6, 8]
-        self.number_iterations = 600
-        self.trials_count = 25
-        
         self.samples_label = QtWidgets.QLabel('Sample Count')
         self.samples_value = QtWidgets.QLineEdit()
         self.samples_value.setText('100')
@@ -46,11 +40,11 @@ class ModifiedAlternatingProjectTab(QWidget):
         self.snr_checkbox_label = QtWidgets.QLabel('Add Noise?')
         self.snr_checkbox = QtWidgets.QCheckBox()
 
+        self.graph_random_projection_button = QtWidgets.QPushButton('Graph Recovery')
+        self.graph_random_projection_button.clicked.connect(self.graph)
+
         self.modified_graph_random_projection_button = QtWidgets.QPushButton('Modified Graph Recovery')
         self.modified_graph_random_projection_button.clicked.connect(self.modified_recovery_graph)
-
-        self.trials_button = QtWidgets.QPushButton('Calc Trials')
-        self.trials_button.clicked.connect(self.trials)
 
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.addWidget(self.samples_label, 0, 0)
@@ -63,8 +57,27 @@ class ModifiedAlternatingProjectTab(QWidget):
         self.layout.addWidget(self.trials_value, 3, 1)
         self.layout.addWidget(self.snr_checkbox_label, 4, 0)
         self.layout.addWidget(self.snr_checkbox, 4, 1)
-        self.layout.addWidget(self.modified_graph_random_projection_button, 5, 0)
-        self.layout.addWidget(self.trials_button, 6, 0)
+        self.layout.addWidget(self.graph_random_projection_button, 5, 0)
+        self.layout.addWidget(self.modified_graph_random_projection_button, 6, 0)
+
+    @QtCore.Slot()
+    def graph(self):
+        N = int(self.samples_value.text())  # N Samples
+        mask_count = int(self.mask_combo_box.currentText())
+        m = mask_count * N
+        number_iterations = 600
+
+        # Need to set particular seed or the recovery values won't always align as expected
+        # If you leave it blank the odds of success will be dependent on number of masks
+        seed = self.seed_value.text()
+        do_add_noise = self.snr_checkbox.isChecked()
+
+        (x, x_recon, phasefac, error) = measurement.alternating_phase_projection_recovery(N, m, number_iterations, seed,
+                                                                                          do_add_noise)
+
+        print(error)
+
+        self.graph_recovery(x, x_recon)
 
     @QtCore.Slot()
     def modified_recovery_graph(self):
@@ -78,33 +91,12 @@ class ModifiedAlternatingProjectTab(QWidget):
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
 
-        (x, x_recon, phasefac, error) = measurement.modified_alternate_phase_projection(N, m, number_iterations, seed,
-                                                                                        do_add_noise)
+        (x, x_recon, phasefac, error) = measurement.modified_alternating_phase_projection_recovery(N, m, number_iterations, seed,
+                                                                                                   do_add_noise)
 
         print(error)
 
         self.graph_recovery(x, x_recon)
-
-    @QtCore.Slot()
-    def trials(self):
-        results_by_sample_size = dict()
-        trials_count = 25
-        for n in self.N:
-            results = []
-            for mc in self.mask_count:
-                trial_errors = np.zeros(trials_count, dtype=np.float_)
-                m = mc * n
-                for i in range(0, trials_count):
-                    (_, _, _, error) = measurement.modified_alternate_phase_projection(n, m, self.number_iterations,
-                                                                                       3140, False)
-                    trial_errors[i] = error
-                results.append(np.average(trial_errors))
-
-            results_by_sample_size[n] = results
-
-        self.trials_window = TrialsWindow(results_by_sample_size, self.N, self.mask_count)
-        self.trials_window.resize(600, 800)
-        self.trials_window.show()
 
     @staticmethod
     def graph_recovery(x, x_recon):
@@ -120,37 +112,3 @@ class ModifiedAlternatingProjectTab(QWidget):
         recovered2 = ax1[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
         fig.legend(handles=[true2, recovered2])
         plt.show()
-
-
-class TrialsWindow(QtWidgets.QWidget):
-    def __init__(self, results_by_sample_size, N, mask_count):
-        super().__init__()
-
-        self.table = QTableWidget(self)
-        self.table.setRowCount(3)
-
-        headers = ['Sample #']
-        for mc in mask_count:
-            headers.append('Mask Count ' + str(mc))
-
-        self.table.setColumnCount(len(headers))
-        self.table.setHorizontalHeaderLabels(headers)
-
-        row = 0
-        for n in N:
-            results = results_by_sample_size[n]
-
-            item = QTableWidgetItem()
-            item.setData(0, 'Sample # ' + str(n))
-            self.table.setItem(row, 0, item)
-
-            for idx, value in enumerate(results):
-                item = QTableWidgetItem()
-                item.setData(0, '{:e}'.format(value))
-                self.table.setItem(row, idx + 1, item)
-
-            row += 1
-
-
-        self.table.resize(600, 800)
-        self.table.show()
