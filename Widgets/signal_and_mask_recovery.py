@@ -42,12 +42,35 @@ class SignalMaskRecovery(QWidget):
         self.layout.addWidget(self.avg_signal_value, 2, 1)
 
         self.avg_mask_label = QtWidgets.QLabel('Avg error for Mask')
-        self.layout.addWidget(self.avg_mask_label, 1, 3)
+        self.layout.addWidget(self.avg_mask_label, 1, 2)
 
         self.avg_mask_value = QtWidgets.QLineEdit()
         self.avg_mask_value.setReadOnly(True)
         self.avg_mask_value.setText('N/A')
-        self.layout.addWidget(self.avg_mask_value, 2, 3)
+        self.layout.addWidget(self.avg_mask_value, 2, 2)
+
+        self.run_average_unknown_recovery_button = QtWidgets.QPushButton('Run average for unknowns')
+        self.run_average_unknown_recovery_button.setToolTip(f'Run the recovery {self.trial_count} times and calculate '
+                                   f'average error for the recovered signal and mask from an unknown signal and mask')
+        self.run_average_unknown_recovery_button.clicked.connect(self.run_average_unknown_recovery)
+
+        self.layout.addWidget(self.run_average_unknown_recovery_button, 3, 0)
+
+        self.avg_unknown_signal_label = QtWidgets.QLabel('Avg error for unknown Signal')
+        self.layout.addWidget(self.avg_unknown_signal_label, 3, 1)
+
+        self.avg_unknown_signal_value = QtWidgets.QLineEdit()
+        self.avg_unknown_signal_value.setReadOnly(True)
+        self.avg_unknown_signal_value.setText('N/A')
+        self.layout.addWidget(self.avg_unknown_signal_value, 4, 1)
+
+        self.avg_unknown_mask_label = QtWidgets.QLabel('Avg error for unknown Mask')
+        self.layout.addWidget(self.avg_unknown_mask_label, 3, 2)
+
+        self.avg_unknown_mask_value = QtWidgets.QLineEdit()
+        self.avg_unknown_mask_value.setReadOnly(True)
+        self.avg_unknown_mask_value.setText('N/A')
+        self.layout.addWidget(self.avg_unknown_mask_value, 4, 2)
 
     @QtCore.Slot()
     def run_average(self):
@@ -85,6 +108,46 @@ class SignalMaskRecovery(QWidget):
 
         self.avg_signal_value.setText('{:e}'.format(avg_trial_error))
         self.avg_mask_value.setText('{:e}'.format(avg_mask_error))
+
+    @QtCore.Slot()
+    def run_average_unknown_recovery(self):
+        """
+        Runs a specified number of trials to calculate the average error when recovering the signal and mask
+        """
+        m = 8 * self.N
+        number_iterations = 600
+        seed = 3140
+
+        signal_trial_errors = np.zeros(self.trial_count, dtype=np.float_)
+        mask_trial_errors = np.zeros(self.trial_count, dtype=np.float_)
+
+        for i in range(0, self.trial_count):
+            x = np.random.rand(self.N) + 1J * np.random.rand(self.N)
+            mask = np.random.rand(self.N) + 1J * np.random.rand(self.N)
+            mask_estimate = perturb_vec(mask)
+            x_estimate = perturb_vec(x)
+            (_, x_recon, _, signal_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+                                                                                                       number_iterations,
+                                                                                                       seed,
+                                                                                                       False,
+                                                                                                       x=x_estimate,
+                                                                                                       mask=mask_estimate)
+            signal_trial_errors[i] = signal_error
+
+            (_, mask_recon, _, mask_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+                                                                                                        number_iterations,
+                                                                                                        seed,
+                                                                                                        False,
+                                                                                                        x=mask_estimate,
+                                                                                                        mask=x_estimate,
+                                                                                                        do_time_shift_signal=True)
+            mask_trial_errors[i] = mask_error
+
+        avg_trial_error = np.average(signal_trial_errors)
+        avg_mask_error = np.average(mask_trial_errors)
+
+        self.avg_unknown_signal_value.setText('{:e}'.format(avg_trial_error))
+        self.avg_unknown_mask_value.setText('{:e}'.format(avg_mask_error))
 
 
 class SignalTableView(QtWidgets.QTableView):
