@@ -3,8 +3,8 @@ import scipy
 from numpy import imag
 
 
-def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise: bool,
-                               x=None, mask=None, do_time_shift_signal: bool = False):
+def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_noise: bool,
+                                          x=None, mask=None, do_time_shift_signal: bool = False):
     """
     This is the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements
@@ -47,8 +47,8 @@ def alternate_phase_projection(N, m, number_iterations, seed, do_add_noise: bool
     return x, x_recon, phasefac, error
 
 
-def modified_alternate_phase_projection(N, m, number_iterations, seed, do_add_noise: bool,
-                                        x=None, mask=None, do_time_shift_signal: bool = False):
+def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_noise: bool,
+                                                   x=None, mask=None, do_time_shift_signal: bool = False):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
