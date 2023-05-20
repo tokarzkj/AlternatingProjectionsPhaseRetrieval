@@ -24,11 +24,14 @@ class SignalMaskRecovery(QWidget):
         x = np.random.rand(self.N) + 1J * np.random.rand(self.N)
         mask = np.random.rand(self.N) + 1J * np.random.rand(self.N)
 
+        self.table_layout = QtWidgets.QGridLayout(self)
         self.signal_table = SignalTableView(x, mask)
-        self.layout.addWidget(self.signal_table, 0, 0)
+        self.table_layout.addWidget(self.signal_table, 0, 0)
 
         self.mask_table = MaskTableView(x, mask)
-        self.layout.addWidget(self.mask_table, 0, 1)
+        self.table_layout.addWidget(self.mask_table, 0, 1)
+
+        self.layout.addLayout(self.table_layout, 0, 0, 1, -1)
 
         self.avg_signal_label = QtWidgets.QLabel('Avg error for Signal')
         self.layout.addWidget(self.avg_signal_label, 1, 1)
@@ -122,6 +125,7 @@ class MaskTableView(QtWidgets.QTableView):
 
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels(['mask', 'recon mask'])
+
         for idx, value in enumerate(mask_recon):
             item1 = QStandardItem(str(mask[idx]))
             item2 = QStandardItem(str(value))
