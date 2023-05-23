@@ -4,6 +4,7 @@ from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget
 
 import measurement
+from utilities import perturb_vec
 
 
 class SignalMaskRecovery(QWidget):
@@ -195,11 +196,3 @@ class MaskTableView(QtWidgets.QTableView):
             model.appendRow([item1, item2])
 
         self.setModel(model)
-
-
-def perturb_vec(vec: np.array):
-    n = vec.shape[0]
-    perturbation = np.random.rand(n) + 1J * np.random.rand(n)
-    perturbation = np.multiply(perturbation, 1 / np.power(10, 4))
-
-    return np.subtract(vec, perturbation)
