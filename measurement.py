@@ -173,7 +173,8 @@ def create_measurement_matrix(m, N, vec, do_time_shift_signal=False):
             shift = shift * -1
 
         shifted_mask = np.roll(vec, shift)
-        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag * shifted_mask)
+        diag_shift = np.multiply(diag, shifted_mask)
+        A[i * N: (i * N) + N] = np.matmul(scipy.linalg.dft(N), diag_shift)
 
     return A
 
