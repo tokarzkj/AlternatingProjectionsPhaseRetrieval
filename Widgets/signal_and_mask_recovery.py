@@ -73,6 +73,7 @@ class SignalMaskRecovery(QWidget):
         self.avg_unknown_mask_value.setText('N/A')
         self.layout.addWidget(self.avg_unknown_mask_value, 4, 2)
 
+
     @QtCore.Slot()
     def run_average(self):
         """
