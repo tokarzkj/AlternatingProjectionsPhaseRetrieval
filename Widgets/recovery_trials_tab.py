@@ -36,11 +36,22 @@ class RecoveryTrialsTab(QWidget):
         self.modified_recovery_trials_button = QtWidgets.QPushButton('Modified Recovery Trials')
         self.modified_recovery_trials_button.clicked.connect(self.modified_recovery_trials)
 
+        self.calc_error_reduced_trial_text = QTextEdit()
+        self.calc_error_reduced_trial_text.setText(
+            f"Calculate the average error of signal recovery with N {self.N} samples" +
+            f"m {self.mask_count} masks over {self.trials_count} trials using the error reduced alternating projection recovery")
+        self.calc_error_reduced_trial_text.setReadOnly(True)
+
+        self.error_reduced_recovery_trials_button = QtWidgets.QPushButton('Error Reduced Recovery Trials')
+        self.error_reduced_recovery_trials_button.clicked.connect(self.error_reduced_recovery_trials)
+
         self.layout = QtWidgets.QGridLayout(self)
         self.layout.addWidget(self.calc_trial_text, 0, 0)
         self.layout.addWidget(self.trials_button, 1, 0)
         self.layout.addWidget(self.calc_modified_trial_text, 2, 0)
         self.layout.addWidget(self.modified_recovery_trials_button, 3, 0)
+        self.layout.addWidget(self.calc_error_reduced_trial_text, 4, 0)
+        self.layout.addWidget(self.error_reduced_recovery_trials_button, 5, 0)
 
     @QtCore.Slot()
     def trials(self):
@@ -75,6 +86,32 @@ class RecoveryTrialsTab(QWidget):
                 for i in range(0, trials_count):
                     (_, _, _, error) = measurement.modified_alternating_phase_projection_recovery(n, m, self.number_iterations,
                                                                                                   3140, False)
+                    trial_errors[i] = error
+                results.append(np.average(trial_errors))
+
+            results_by_sample_size[n] = results
+
+        self.trials_window = TrialsWindow(results_by_sample_size, self.N, self.mask_count)
+        self.trials_window.resize(600, 800)
+        self.trials_window.show()
+
+    @QtCore.Slot()
+    def error_reduced_recovery_trials(self):
+        results_by_sample_size = dict()
+        trials_count = 5
+        for n in self.N:
+            print('Starting trial with {samples:n} samples'.format(samples=n))
+            results = []
+            for mc in self.mask_count:
+                print('Starting mask count with {mc:n} masks'.format(mc=mc))
+                trial_errors = np.zeros(trials_count, dtype=np.float_)
+                m = mc * n
+                for i in range(0, trials_count):
+                    print('Starting trial {trial:n} with {samples:n} samples'.format(trial=i, samples=n))
+                    (_, _, _, _, _, error) = measurement.alternating_phase_projection_recovery_with_error_reduction(
+                                                                                                n, m,
+                                                                                                self.number_iterations,
+                                                                                                3140, False)
                     trial_errors[i] = error
                 results.append(np.average(trial_errors))
 
