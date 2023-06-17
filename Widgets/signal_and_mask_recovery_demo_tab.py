@@ -1,3 +1,4 @@
+import matplotlib.table
 import numpy as np
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import QWidget
@@ -14,10 +15,6 @@ class SignalMaskRecoveryDemo(QWidget):
     def __init__(self, parent=None):
         super().__init__()
 
-        self.figure = plt.figure()
-        self.canvas = FigureCanvasQTAgg(self.figure)
-        self.toolbar = NavigationToolbar2QT(self.canvas, self)
-
         self.N = 100
         self.run_recovery_example_button = QtWidgets.QPushButton('Run example')
         self.run_recovery_example_button.setToolTip(
@@ -25,8 +22,6 @@ class SignalMaskRecoveryDemo(QWidget):
         self.run_recovery_example_button.clicked.connect(self.run_recovery_example)
 
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(self.toolbar)
-        layout.addWidget(self.canvas)
         layout.addWidget(self.run_recovery_example_button)
 
         self.setLayout(layout)
@@ -56,41 +51,43 @@ class SignalMaskRecoveryDemo(QWidget):
                                                                                                     mask=x_estimate,
                                                                                                     do_time_shift_signal=True)
 
-        self.figure.clear()
-        ax = self.figure.add_subplot(4, 2, 1)
-        ax.set_title('Real Part of Signal')
-        ax.stem([real(e) for e in x])
+        # This isn't ideal, but prevents overwhelming the screen with graphs and allows user to save individual plots
+        fig, ax = plt.subplots(1, 2, num='Signal Graphs')
+        ax[0].set_title('Real Part of Signal')
+        ax[0].stem([real(e) for e in x])
 
-        ax = self.figure.add_subplot(4, 2, 2)
-        ax.set_title('Imaginary Part of Signal')
-        ax.stem([imag(e) for e in x])
+        ax[1].set_title('Imaginary Part of Signal')
+        ax[1].stem([imag(e) for e in x])
 
-        ax = self.figure.add_subplot(4, 2, 3)
-        ax.set_title('Real Part of Mask')
-        ax.stem([real(e) for e in mask])
+        plt.show()
 
-        ax = self.figure.add_subplot(4, 2, 4)
-        ax.set_title('Imaginary Part of Mask')
-        ax.stem([imag(e) for e in mask])
+        fig, ax = plt.subplots(1, 2, num='Mask Graphs')
+        ax[0].set_title('Real Part of Mask')
+        ax[0].stem([real(e) for e in mask])
 
-        ax = self.figure.add_subplot(4, 2, 5)
-        ax.set_title('Recovery vs Original Signal (Real)')
-        ax.stem([real(e) for e in x], markerfmt='x', label='True')
-        ax.stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        ax[1].set_title('Imaginary Part of Mask')
+        ax[1].stem([imag(e) for e in mask])
 
-        ax = self.figure.add_subplot(4, 2, 6)
-        ax.set_title('Recovery vs Original Signal (Imag)')
-        ax.stem([imag(e) for e in x], markerfmt='x', label='True')
-        ax.stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        plt.show()
 
-        ax = self.figure.add_subplot(4, 2, 7)
-        ax.set_title('Recovery vs Original Mask (Real)')
-        ax.stem([real(e) for e in mask], markerfmt='x', label='True')
-        ax.stem([real(e) for e in mask_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        fig, ax = plt.subplots(1, 2, num='Signal Recovery Graphs')
+        ax[0].set_title('Recovery vs Original Signal (Real)')
+        ax[0].stem([real(e) for e in x], markerfmt='x', label='True')
+        ax[0].stem([real(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
 
-        ax = self.figure.add_subplot(4, 2, 8)
-        ax.set_title('Recovery vs Original Mask (Imag)')
-        ax.stem([imag(e) for e in mask], markerfmt='x', label='True')
-        ax.stem([imag(e) for e in mask_recon], linefmt='g--', markerfmt='+', label='Recovered')
+        ax[1].set_title('Recovery vs Original Signal (Imag)')
+        ax[1].stem([imag(e) for e in x], markerfmt='x', label='True')
+        ax[1].stem([imag(e) for e in x_recon], linefmt='g--', markerfmt='+', label='Recovered')
 
-        self.canvas.draw()
+        plt.show()
+
+        fig, ax = plt.subplots(1, 2, num='Mask Recovery Graphs')
+        ax[0].set_title('Recovery vs Original Mask (Real)')
+        ax[0].stem([real(e) for e in mask], markerfmt='x', label='True')
+        ax[0].stem([real(e) for e in mask_recon], linefmt='g--', markerfmt='+', label='Recovered')
+
+        ax[1].set_title('Recovery vs Original Mask (Imag)')
+        ax[1].stem([imag(e) for e in mask], markerfmt='x', label='True')
+        ax[1].stem([imag(e) for e in mask_recon], linefmt='g--', markerfmt='+', label='Recovered')
+
+        plt.show()
