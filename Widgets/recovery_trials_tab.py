@@ -98,7 +98,7 @@ class RecoveryTrialsTab(QWidget):
     @QtCore.Slot()
     def error_reduced_recovery_trials(self):
         results_by_sample_size = dict()
-        trials_count = 5
+        trials_count = 25
         for n in self.N:
             print('Starting trial with {samples:n} samples'.format(samples=n))
             results = []
@@ -108,7 +108,7 @@ class RecoveryTrialsTab(QWidget):
                 m = mc * n
                 for i in range(0, trials_count):
                     print('Starting trial {trial:n} with {samples:n} samples'.format(trial=i, samples=n))
-                    (_, _, _, _, _, error) = measurement.alternating_phase_projection_recovery_with_error_reduction(
+                    (_, _, _, _, _, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                 n, m,
                                                                                                 self.number_iterations,
                                                                                                 3140, False)

@@ -133,6 +133,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
 
     x_recon = np.random.rand(N) + 1J * np.random.rand(N)
     mask_approx = perturb_vec(mask)
+    progressive_errors = dict()
     for idx in range(0, 100):
         A_approx = create_measurement_matrix(m, N, mask_approx)
         A_pinv = scipy.linalg.pinv(A_approx)
@@ -144,12 +145,15 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
         m_recon = mask_approx
         mask_approx = reconstructed_signal(m_recon, M_approx, b, M_pinv, number_iterations)
 
+        if idx % 50 == 0:
+            progressive_errors[idx] = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
+
     phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
     x_recon = np.multiply(x_recon, signum(phasefac))
 
     error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
 
-    return x, x_recon, mask, mask_approx, phasefac, error
+    return x, x_recon, mask, mask_approx, phasefac, error, progressive_errors
 
 def signum(value):
     # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.

@@ -15,7 +15,7 @@ class SignalMaskRecoveryDemo(QWidget):
     def __init__(self, parent=None):
         super().__init__()
 
-        self.N = 100
+        self.N = 25
         self.run_recovery_example_button = QtWidgets.QPushButton('Run example')
         self.run_recovery_example_button.setToolTip(
             'Run the recovery process and show details about signal and results')
@@ -36,14 +36,14 @@ class SignalMaskRecoveryDemo(QWidget):
         mask_estimate = perturb_vec(mask)
         x_estimate = perturb_vec(x)
 
-        (_, x_recon, _, signal_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+        (_, x_recon, _, _, _, signal_error, signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                    number_iterations,
                                                                                                    0,
                                                                                                    False,
                                                                                                    x=x_estimate,
                                                                                                    mask=mask_estimate)
 
-        (_, mask_recon, _, mask_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+        (_, mask_recon, _, _, _, mask_error, mask_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                     number_iterations,
                                                                                                     0,
                                                                                                     False,
@@ -89,5 +89,21 @@ class SignalMaskRecoveryDemo(QWidget):
         ax[1].set_title('Recovery vs Original Mask (Imag)')
         ax[1].stem([imag(e) for e in mask], markerfmt='x', label='True')
         ax[1].stem([imag(e) for e in mask_recon], linefmt='g--', markerfmt='+', label='Recovered')
+
+        plt.show()
+
+        fig, ax = plt.subplots(1, 2, num='Mask Recovery Graphs')
+        column_labels = ('Signal Error', '8 Masks')
+        # This only works as long as the signal and mask use the same iteration count
+        row_labels = ['After %d iterations' % k for k in signal_iterative_error.keys()].append('Final Error')
+
+        cell_text = []
+        for i in signal_iterative_error.keys():
+            sig_err = signal_iterative_error[i]
+            mask_err = mask_iterative_error[i]
+            cell_text.append('{:e}'.format(sig_err) + ' ' + '{:e}'.format(mask_err))
+
+        cell_text.append('{:e}'.format(signal_error) + ' ' + '{:e}'.format(mask_error))
+        table = plt.table(cellText=cell_text, rowLabels=row_labels, loc='bottom')
 
         plt.show()
