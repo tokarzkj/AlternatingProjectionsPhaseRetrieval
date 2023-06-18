@@ -145,7 +145,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
         m_recon = mask_approx
         mask_approx = reconstructed_signal(m_recon, M_approx, b, M_pinv, number_iterations)
 
-        if idx % 50 == 0:
+        if idx % 10 == 0:
             progressive_errors[idx] = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
 
     phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
