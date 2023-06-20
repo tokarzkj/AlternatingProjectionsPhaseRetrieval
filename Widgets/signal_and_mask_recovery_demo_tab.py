@@ -16,6 +16,9 @@ class SignalMaskRecoveryDemo(QWidget):
     def __init__(self, parent=None):
         super().__init__()
 
+        self.alternating_projection_algorithm = 'Alternating Projection Algorithm'
+        self.alternating_projection_algorithm_error_reduction = 'Error Reduced Alternating Projection Algorithm'
+
         self.N = 25
         self.run_recovery_example_button = QtWidgets.QPushButton('Run example')
         self.run_recovery_example_button.setToolTip(
@@ -23,7 +26,12 @@ class SignalMaskRecoveryDemo(QWidget):
         self.run_recovery_example_button.clicked.connect(self.run_recovery_example)
         self.error_results_table = ErrorResultsTableView()
 
+        self.algorithm_selection_box = QtWidgets.QComboBox()
+        self.algorithm_selection_box.addItem(self.alternating_projection_algorithm)
+        self.algorithm_selection_box.addItem(self.alternating_projection_algorithm_error_reduction)
+
         layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.algorithm_selection_box)
         layout.addWidget(self.error_results_table)
         layout.addWidget(self.run_recovery_example_button)
 
@@ -39,22 +47,8 @@ class SignalMaskRecoveryDemo(QWidget):
         mask_estimate = perturb_vec(mask)
         x_estimate = perturb_vec(x)
 
-        (_, x_recon, _, _, _, signal_error,
-         signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
-                                                                                                          number_iterations,
-                                                                                                          0,
-                                                                                                          False,
-                                                                                                          x=x_estimate,
-                                                                                                          mask=mask_estimate)
-
-        (_, mask_recon, _, _, _, mask_error,
-         mask_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
-                                                                                                        number_iterations,
-                                                                                                        0,
-                                                                                                        False,
-                                                                                                        x=mask_estimate,
-                                                                                                        mask=x_estimate,
-                                                                                                        do_time_shift_signal=True)
+        mask_error, mask_iterative_error, mask_recon, signal_error, signal_iterative_error, x_recon = self.get_table_results(
+            x, mask, m, mask_estimate, number_iterations, x_estimate)
 
         # This isn't ideal, but prevents overwhelming the screen with graphs and allows user to save individual plots
         fig, ax = plt.subplots(1, 2, num='Signal Graphs')
@@ -108,6 +102,53 @@ class SignalMaskRecoveryDemo(QWidget):
         self.error_results_table.update_table(error_results)
         self.layout().update()
 
+    def get_table_results(self, x, mask, m, mask_estimate, number_iterations, x_estimate):
+        if self.algorithm_selection_box.currentText() == self.alternating_projection_algorithm:
+            (_, x_recon, _, signal_error, signal_recon_iterations) = \
+                measurement.modified_alternating_phase_projection_recovery(self.N, m,
+                                                                           number_iterations,
+                                                                           0,
+                                                                           False,
+                                                                           x=x,
+                                                                           mask=mask_estimate)
+
+            (_, mask_recon, _, mask_error, mask_recon_iterations) = \
+                measurement.modified_alternating_phase_projection_recovery(self.N, m,
+                                                                           number_iterations,
+                                                                           0,
+                                                                           False,
+                                                                           x=mask,
+                                                                           mask=x_estimate,
+                                                                           do_time_shift_signal=True)
+
+            signal_iterative_error = dict()
+            for k in signal_recon_iterations.keys():
+                sig_recon = signal_recon_iterations[k]
+                signal_iterative_error[k] = np.linalg.norm(x - sig_recon) / np.linalg.norm(x)
+
+            mask_iterative_error = dict()
+            for k in mask_recon_iterations.keys():
+                mask_recon = mask_recon_iterations[k]
+                mask_iterative_error[k] = np.linalg.norm(mask - mask_recon) / np.linalg.norm(mask)
+        elif self.algorithm_selection_box.currentText() == self.alternating_projection_algorithm_error_reduction:
+            (_, x_recon, _, _, _, signal_error,
+             signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
+                                                                                                              number_iterations,
+                                                                                                              0,
+                                                                                                              False,
+                                                                                                              x=x_estimate,
+                                                                                                              mask=mask_estimate)
+
+            (_, mask_recon, _, _, _, mask_error,
+             mask_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
+                                                                                                            number_iterations,
+                                                                                                            0,
+                                                                                                            False,
+                                                                                                            x=mask_estimate,
+                                                                                                            mask=x_estimate,
+                                                                                                            do_time_shift_signal=True)
+        return mask_error, mask_iterative_error, mask_recon, signal_error, signal_iterative_error, x_recon
+
 
 class ErrorResultsTableView(QtWidgets.QTableView):
     def __init__(self, results = None):
@@ -126,6 +167,3 @@ class ErrorResultsTableView(QtWidgets.QTableView):
                 item2 = QStandardItem('{:e}'.format(sig_err))
                 item3 = QStandardItem('{:e}'.format(mask_err))
                 self.model.appendRow([item1, item2, item3])
-
-            self.update()
-

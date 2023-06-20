@@ -91,13 +91,13 @@ class SignalMaskRecovery(QWidget):
             mask = np.random.rand(self.N) + 1J * np.random.rand(self.N)
             mask_estimate = perturb_vec(mask)
             x_estimate = perturb_vec(x)
-            (_, x_recon, _, signal_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+            (_, x_recon, _, signal_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                        number_iterations, seed,
                                                                                                        False,
                                                                                                        x=x, mask=mask_estimate)
             signal_trial_errors[i] = signal_error
 
-            (_, mask_recon, _, mask_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+            (_, mask_recon, _, mask_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                         number_iterations,
                                                                                                         seed,
                                                                                                         False,
@@ -128,7 +128,7 @@ class SignalMaskRecovery(QWidget):
             mask = np.random.rand(self.N) + 1J * np.random.rand(self.N)
             mask_estimate = perturb_vec(mask)
             x_estimate = perturb_vec(x)
-            (_, x_recon, _, signal_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+            (_, x_recon, _, signal_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                        number_iterations,
                                                                                                        seed,
                                                                                                        False,
@@ -136,7 +136,7 @@ class SignalMaskRecovery(QWidget):
                                                                                                        mask=mask_estimate)
             signal_trial_errors[i] = signal_error
 
-            (_, mask_recon, _, mask_error) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
+            (_, mask_recon, _, mask_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                         number_iterations,
                                                                                                         seed,
                                                                                                         False,
@@ -161,7 +161,7 @@ class SignalTableView(QtWidgets.QTableView):
         seed = 3140
         mask_estimate = perturb_vec(mask)
 
-        (_, x_recon, _, error) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations, seed,
+        (_, x_recon, _, error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations, seed,
                                                                                             False,
                                                                                             x=x, mask=mask_estimate)
         model = QStandardItemModel()
@@ -183,7 +183,7 @@ class MaskTableView(QtWidgets.QTableView):
         seed = 3140
         x_estimate = perturb_vec(x)
 
-        (_, mask_recon, _, error) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations, seed,
+        (_, mask_recon, _, error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations, seed,
                                                                                                False,
                                                                                                x=mask, mask=x_estimate,
                                                                                                do_time_shift_signal=True)
