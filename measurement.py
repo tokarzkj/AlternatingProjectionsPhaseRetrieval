@@ -6,7 +6,7 @@ from utilities import perturb_vec
 
 
 def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_noise: bool,
-                                          x=None, mask=None, do_time_shift_signal: bool = False):
+                                          x=None, mask=None):
     """
     This is the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements
@@ -17,7 +17,6 @@ def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
-    :param do_time_shift_signal: When True, the mask is shifted to the right during the construction of our recovery matrix A
     :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
     """
     if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
@@ -30,7 +29,7 @@ def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_
     if mask is None:
         mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N, mask, do_time_shift_signal)
+    A = create_measurement_matrix(m, N, mask)
     inverse_A = scipy.linalg.pinv(A)
 
     # Measurements (magnitude of masked DFT coefficients)
@@ -50,7 +49,7 @@ def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_
 
 
 def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_noise: bool,
-                                                   x=None, mask=None, do_time_shift_signal: bool = False):
+                                                   x=None, mask=None):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -62,7 +61,6 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
-    :param do_time_shift_signal: When True, the mask is shifted to the right during the construction of our recovery matrix A
     :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
     """
     if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
@@ -75,7 +73,7 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed
     if mask is None:
         mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N, mask, do_time_shift_signal)
+    A = create_measurement_matrix(m, N, mask)
 
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
@@ -99,7 +97,7 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed
 
 
 def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iterations, seed, do_add_noise: bool,
-                                                               x=None, mask=None, do_time_shift_signal: bool = False):
+                                                               x=None, mask=None):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -113,7 +111,6 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
-    :param do_time_shift_signal: When True, the mask is shifted to the right during the construction of our recovery matrix A
     :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
     """
     if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
@@ -126,7 +123,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     if mask is None:
         mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    A = create_measurement_matrix(m, N, mask, do_time_shift_signal)
+    A = create_measurement_matrix(m, N, mask)
 
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
@@ -167,7 +164,7 @@ def signum(value):
         return value / np.abs(value)
 
 
-def create_measurement_matrix(m, N, vec, do_time_shift_signal=False):
+def create_measurement_matrix(m, N, vec, do_shift_left=False):
     A = np.zeros((m, N), dtype=np.complex_)
 
     # Create a diagonal matrix of 1s
@@ -177,7 +174,7 @@ def create_measurement_matrix(m, N, vec, do_time_shift_signal=False):
 
     for i in range(0, int(m / N)):
         shift = int(i * np.round(N / (m / N)))
-        if do_time_shift_signal:
+        if do_shift_left:
             shift = shift * -1
 
         shifted_mask = np.roll(vec, shift)

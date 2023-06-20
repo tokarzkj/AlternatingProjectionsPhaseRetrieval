@@ -101,8 +101,7 @@ class SignalMaskRecovery(QWidget):
                                                                                                         number_iterations,
                                                                                                         seed,
                                                                                                         False,
-                                                                                                        x=mask, mask=x_estimate,
-                                                                                                        do_time_shift_signal=True)
+                                                                                                        x=mask, mask=x_estimate)
             mask_trial_errors[i] = mask_error
 
         avg_trial_error = np.average(signal_trial_errors)
@@ -141,8 +140,7 @@ class SignalMaskRecovery(QWidget):
                                                                                                         seed,
                                                                                                         False,
                                                                                                         x=mask_estimate,
-                                                                                                        mask=x_estimate,
-                                                                                                        do_time_shift_signal=True)
+                                                                                                        mask=x_estimate)
             mask_trial_errors[i] = mask_error
 
         avg_trial_error = np.average(signal_trial_errors)
@@ -185,8 +183,7 @@ class MaskTableView(QtWidgets.QTableView):
 
         (_, mask_recon, _, error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations, seed,
                                                                                                False,
-                                                                                               x=mask, mask=x_estimate,
-                                                                                               do_time_shift_signal=True)
+                                                                                               x=mask, mask=x_estimate)
 
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels(['mask', 'recon mask'])

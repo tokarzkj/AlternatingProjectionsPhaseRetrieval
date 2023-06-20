@@ -109,7 +109,7 @@ class SignalMaskRecoveryDemo(QWidget):
                                                                            number_iterations,
                                                                            0,
                                                                            False,
-                                                                           x=x,
+                                                                           x=x_estimate,
                                                                            mask=mask_estimate)
 
             (_, mask_recon, _, mask_error, mask_recon_iterations) = \
@@ -117,9 +117,8 @@ class SignalMaskRecoveryDemo(QWidget):
                                                                            number_iterations,
                                                                            0,
                                                                            False,
-                                                                           x=mask,
-                                                                           mask=x_estimate,
-                                                                           do_time_shift_signal=True)
+                                                                           x=mask_estimate,
+                                                                           mask=x_estimate)
 
             signal_iterative_error = dict()
             for k in signal_recon_iterations.keys():
@@ -128,8 +127,8 @@ class SignalMaskRecoveryDemo(QWidget):
 
             mask_iterative_error = dict()
             for k in mask_recon_iterations.keys():
-                mask_recon = mask_recon_iterations[k]
-                mask_iterative_error[k] = np.linalg.norm(mask - mask_recon) / np.linalg.norm(mask)
+                m_recon = mask_recon_iterations[k]
+                mask_iterative_error[k] = np.linalg.norm(mask - m_recon) / np.linalg.norm(mask)
         elif self.algorithm_selection_box.currentText() == self.alternating_projection_algorithm_error_reduction:
             (_, x_recon, _, _, _, signal_error,
              signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
