@@ -38,7 +38,7 @@ def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_
     if do_add_noise:
         b = simulate_noise_in_measurement(b)
 
-    x_recon, x_recon_iterations = initial_x_reconstruction_signal(A, N, b, inverse_A, number_iterations)
+    x_recon, x_recon_iterations = iterative_signal_reconstruction(A, N, b, inverse_A, number_iterations)
 
     phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
     x_recon = np.multiply(x_recon, signum(phasefac))
@@ -86,7 +86,7 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed
 
     perturbed_A = np.subtract(A, perturbation)
     inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)
-    x_recon, x_recon_iterations = initial_x_reconstruction_signal(perturbed_A, N, b, inverse_perturbed_A, number_iterations)
+    x_recon, x_recon_iterations = iterative_signal_reconstruction(perturbed_A, N, b, inverse_perturbed_A, number_iterations)
 
     phasefac = np.matmul(np.conjugate(x_recon).T, x) / np.matmul(np.conjugate(x).T, x)
     x_recon = np.multiply(x_recon, signum(phasefac))
@@ -111,7 +111,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
-    :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
+    :return: Returns a tuple with the signal, reconstructed signal, phase factors, the final error, and x_recon after iterations
     """
     if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
         seed = int(seed)
@@ -156,6 +156,42 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     return x, x_recon, mask, mask_approx, phasefac, error, progressive_errors
 
 
+def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations, do_add_noise: bool):
+    """
+    The purpose of this method is to prove that this method is equivalent to the modified_alternating_phase_projection_recovery.
+    Instead of computing x_n * m_(n-l) this method solves for the mask and computes x_(n+l) * m_n
+    :param mask: An N length vector representing the mask
+    :param x: An N length signal
+    :param m: The number of shifted masks to generated from the mask param
+    :param number_iterations: The number of iterations to use in the recovery process
+    :param do_add_noise: Add noise to simulate the real world
+    :return: Returns final x_recon, final error, and x_recon after every 50 iterations
+    """
+    N = len(x)
+    B = create_measurement_matrix(m, N, x, do_shift_left=True)
+
+    # Measurements (magnitude of masked DFT coefficients)
+    b = np.abs(np.matmul(B, x))
+
+    if do_add_noise:
+        b = simulate_noise_in_measurement(b)
+
+    perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
+    perturbation = np.multiply(perturbation, 1 / np.power(10, 6))
+
+    perturbed_A = np.subtract(B, perturbation)
+    inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)
+    mask_recon, x_recon_iterations = iterative_signal_reconstruction(perturbed_A, N, b, inverse_perturbed_A,
+                                                                     number_iterations)
+
+    phasefac = np.matmul(np.conjugate(mask_recon).T, mask) / np.matmul(np.conjugate(mask).T, mask)
+    x_recon = np.multiply(mask_recon, signum(phasefac))
+
+    error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
+
+    return x_recon, error, x_recon_iterations
+
+
 def create_measurement_matrix(m, N, vec, do_shift_left=False):
     A = np.zeros((m, N), dtype=np.complex_)
 
@@ -176,18 +212,18 @@ def create_measurement_matrix(m, N, vec, do_shift_left=False):
     return A
 
 
-def initial_x_reconstruction_signal(A, N, b, inverse_A, number_iterations):
+def iterative_signal_reconstruction(measurement_matrix, N, b, inverse_A, number_iterations):
     """
     The core method for reconstructing x
-    :param A:
-    :param N:
-    :param b:
+    :param measurement_matrix:
+    :param N: Number of samples
+    :param b: N length vector
     :param inverse_A:
     :param number_iterations:
     :return:
     """
-    x_recon = np.random.rand(N) + 1J * np.random.rand(N)
-    return reconstructed_signal(x_recon, A, b, inverse_A, number_iterations)
+    signal_recon = np.random.rand(N) + 1J * np.random.rand(N)
+    return reconstructed_signal(signal_recon, measurement_matrix, b, inverse_A, number_iterations)
 
 
 def reconstructed_signal(signal, A, b, inverse_A, number_iterations):
