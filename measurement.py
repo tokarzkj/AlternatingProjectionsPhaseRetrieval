@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 from numpy import imag
 
-from utilities import perturb_vec, simulate_noise_in_measurement
+from utilities import perturb_vec, simulate_noise_in_measurement, signum
 
 
 def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_noise: bool,
@@ -154,14 +154,6 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
 
     return x, x_recon, mask, mask_approx, phasefac, error, progressive_errors
-
-
-def signum(value):
-    # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.
-    if imag(value) == 0J:
-        return np.sign(value)
-    else:
-        return value / np.abs(value)
 
 
 def create_measurement_matrix(m, N, vec, do_shift_left=False):

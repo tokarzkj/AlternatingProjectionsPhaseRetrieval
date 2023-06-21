@@ -1,4 +1,5 @@
 import numpy as np
+from numpy import imag
 
 
 def perturb_vec(vec: np.array):
@@ -22,3 +23,11 @@ def simulate_noise_in_measurement(b):
     b = np.add(b, noise)
 
     return b
+
+
+def signum(value):
+    # np.sign's complex implementation is different from matlab's. Changing to accommodate that difference.
+    if imag(value) == 0J:
+        return np.sign(value)
+    else:
+        return value / np.abs(value)
