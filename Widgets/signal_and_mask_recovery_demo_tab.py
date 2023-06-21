@@ -110,7 +110,7 @@ class SignalMaskRecoveryDemo(QWidget):
                                                                            0,
                                                                            False,
                                                                            x=x_estimate,
-                                                                           mask=mask_estimate)
+                                                                           mask=mask)
 
             (_, mask_recon, _, mask_error, mask_recon_iterations) = \
                 measurement.modified_alternating_phase_projection_recovery(self.N, m,
@@ -118,7 +118,7 @@ class SignalMaskRecoveryDemo(QWidget):
                                                                            0,
                                                                            False,
                                                                            x=mask_estimate,
-                                                                           mask=x_estimate)
+                                                                           mask=x)
 
             signal_iterative_error = dict()
             for k in signal_recon_iterations.keys():

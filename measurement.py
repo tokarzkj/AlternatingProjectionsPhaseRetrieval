@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 from numpy import imag
 
-from utilities import perturb_vec
+from utilities import perturb_vec, simulate_noise_in_measurement
 
 
 def alternating_phase_projection_recovery(N, m, number_iterations, seed, do_add_noise: bool,
@@ -208,18 +208,3 @@ def reconstructed_signal(signal, A, b, inverse_A, number_iterations):
             reconstructed_signal_iterations[i] = signal
 
     return signal, reconstructed_signal_iterations
-
-
-def simulate_noise_in_measurement(b):
-    """
-    This method simulates real-world noise in measurements
-    :param b: The phaseless measurement
-    :return: The phaseless measurement with noise
-    """
-    snr = 40  # 40db of noise
-    signal_power = np.square(np.linalg.norm(b)) / len(b)
-    noise_power = signal_power / np.power(10, snr / 10)
-    noise = np.sqrt(noise_power) * np.random.rand(len(b))
-    b = np.add(b, noise)
-
-    return b
