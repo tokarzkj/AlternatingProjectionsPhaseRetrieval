@@ -110,7 +110,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
-    :return: Returns a tuple with the signal, reconstructed signal, phase factors, the final error, and x_recon after iterations
+    :return: Returns a tuple with the reconstructed signal, phase factors, the final error, and x_recon after iterations
     """
 
     A = create_measurement_matrix(m, N, mask)
@@ -143,7 +143,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
 
     error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
 
-    return x, x_recon, mask, mask_approx, phasefac, error, progressive_errors
+    return x_recon, mask, mask_approx, phasefac, error, progressive_errors
 
 
 def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations, do_add_noise: bool):

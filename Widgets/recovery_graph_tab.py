@@ -117,7 +117,7 @@ class RecoveryGraphTab(QWidget):
 
         (x, mask) = utilities.create_signal_and_mask(seed, N)
 
-        (x, x_recon, _, _, phasefac, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
+        (x_recon, _, _, phasefac, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                    N, m,
                                                                                                    number_iterations,
                                                                                                    do_add_noise,
