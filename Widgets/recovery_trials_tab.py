@@ -3,6 +3,7 @@ from PySide6 import QtWidgets, QtCore
 from PySide6.QtWidgets import QWidget, QTableWidgetItem, QTableWidget, QTextEdit
 
 import measurement
+import utilities
 
 
 class RecoveryTrialsTab(QWidget):
@@ -106,10 +107,11 @@ class RecoveryTrialsTab(QWidget):
                 m = mc * n
                 for i in range(0, trials_count):
                     print('Starting trial {trial:n} with {samples:n} samples'.format(trial=i, samples=n))
+                    (x, mask) = utilities.create_signal_and_mask(3140, n)
                     (_, _, _, _, _, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                 n, m,
                                                                                                 self.number_iterations,
-                                                                                                3140, False)
+                                                                                                False, x, mask)
                     trial_errors[i] = error
                 results.append(np.average(trial_errors))
 

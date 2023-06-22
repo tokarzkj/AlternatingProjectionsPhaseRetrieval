@@ -96,8 +96,8 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, seed
     return x, x_recon, phasefac, error, x_recon_iterations
 
 
-def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iterations, seed, do_add_noise: bool,
-                                                               x=None, mask=None):
+def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iterations, do_add_noise: bool,
+                                                               x, mask):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -107,21 +107,11 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     :param N: Length of signal
     :param m: Number of masks
     :param number_iterations: Number of iterations for reconstruction process
-    :param seed: seed for the random number generator
     :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
     :return: Returns a tuple with the signal, reconstructed signal, phase factors, the final error, and x_recon after iterations
     """
-    if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
-        seed = int(seed)
-        np.random.seed(seed)
-
-    if x is None:
-        x = np.random.rand(N) + 1J * np.random.rand(N)
-
-    if mask is None:
-        mask = np.random.rand(N) + 1J * np.random.rand(N)
 
     A = create_measurement_matrix(m, N, mask)
 

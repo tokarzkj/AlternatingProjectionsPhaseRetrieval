@@ -31,3 +31,14 @@ def signum(value):
         return np.sign(value)
     else:
         return value / np.abs(value)
+
+
+def create_signal_and_mask(seed, N):
+    if (isinstance(seed, str) and len(seed) > 0) or seed > 0:
+        seed = int(seed)
+        np.random.seed(seed)
+
+    x = np.random.rand(N) + 1J * np.random.rand(N)
+    mask = np.random.rand(N) + 1J * np.random.rand(N)
+
+    return x, mask

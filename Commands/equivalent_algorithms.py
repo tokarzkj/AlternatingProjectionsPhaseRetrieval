@@ -31,4 +31,4 @@ def display_forward_and_backward_time_shift_equivalence():
         x_sample = x_recon[idx]
         mask_sample = mask_recon[idx]
 
-        print('{:e}, {:e}, {:e}'.format(x_sample, mask_sample, x_sample - mask_sample))
+        print('{:e}, {:e}, {:e}'.format(mask[idx], mask_sample, x_sample - mask_sample))

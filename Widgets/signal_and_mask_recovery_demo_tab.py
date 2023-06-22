@@ -133,19 +133,17 @@ class SignalMaskRecoveryDemo(QWidget):
             (_, x_recon, _, _, _, signal_error,
              signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                               number_iterations,
-                                                                                                              0,
                                                                                                               False,
-                                                                                                              x=x_estimate,
-                                                                                                              mask=mask_estimate)
+                                                                                                              x_estimate,
+                                                                                                              mask_estimate)
 
             (_, mask_recon, _, _, _, mask_error,
              mask_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                             number_iterations,
-                                                                                                            0,
                                                                                                             False,
-                                                                                                            x=mask_estimate,
-                                                                                                            mask=x_estimate,
-                                                                                                            do_time_shift_signal=True)
+                                                                                                            mask_estimate,
+                                                                                                            x_estimate)
+
         return mask_error, mask_iterative_error, mask_recon, signal_error, signal_iterative_error, x_recon
 
 

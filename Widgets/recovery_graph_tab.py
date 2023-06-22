@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 from numpy import real, imag
 
 import measurement
+import utilities
 
 
 class RecoveryGraphTab(QWidget):
@@ -114,11 +115,14 @@ class RecoveryGraphTab(QWidget):
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
 
+        (x, mask) = utilities.create_signal_and_mask(seed, N)
+
         (x, x_recon, _, _, phasefac, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                    N, m,
                                                                                                    number_iterations,
-                                                                                                   seed,
-                                                                                                   do_add_noise)
+                                                                                                   do_add_noise,
+                                                                                                   x,
+                                                                                                   mask)
 
         print(error)
 
