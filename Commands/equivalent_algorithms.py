@@ -14,7 +14,7 @@ def display_forward_and_backward_time_shift_equivalence():
     mask_estimate = perturb_vec(mask)
     x_estimate = perturb_vec(x)
 
-    (_, x_recon, _, signal_error, signal_recon_iterations) = \
+    (_, x_recon, _, signal_error, _) = \
         measurement.modified_alternating_phase_projection_recovery(N, m,
                                                                    number_iterations,
                                                                    0,
@@ -22,9 +22,20 @@ def display_forward_and_backward_time_shift_equivalence():
                                                                    x=x,
                                                                    mask=mask)
 
-    (mask_recon, error, _) = \
+    print('x, x_recon', 'x - x_recon')
+    for idx in range(0, len(x_recon)):
+        x_sample = x[idx]
+        x_recon_sample = x_recon[idx]
+
+        print('{:e}, {:e}, {:e}'.format(x_sample, x_recon_sample, x_sample - x_recon_sample))
+    print('The overall error is {:e}'.format(signal_error))
+
+    (mask_recon, mask_error, _) = \
         measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations,
                                                                             False)
+
+    print("#############################################################################################")
+    print("#############################################################################################")
 
     print('mask, mask_recon', 'mask - mask_recon')
     for idx in range(0, len(x_recon)):
@@ -32,4 +43,4 @@ def display_forward_and_backward_time_shift_equivalence():
         mask_recon_sample = mask_recon[idx]
 
         print('{:e}, {:e}, {:e}'.format(mask_sample, mask_recon_sample, mask_sample - mask_recon_sample))
-    print('The overall error is {:e}'.format(error))
+    print('The overall error is {:e}'.format(mask_error))
