@@ -161,7 +161,7 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
 
     perturbed_A = np.subtract(B, perturbation)
     inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)
-    mask_recon, x_recon_iterations = iterative_signal_reconstruction(perturbed_A, N, b, inverse_perturbed_A,
+    mask_recon, mask_recon_iterations = iterative_signal_reconstruction(perturbed_A, N, b, inverse_perturbed_A,
                                                                      number_iterations)
 
     phasefac = np.matmul(np.conjugate(mask_recon).T, mask) / np.matmul(np.conjugate(mask).T, mask)
@@ -169,7 +169,7 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
 
     error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
 
-    return x_recon, error, x_recon_iterations
+    return x_recon, error, mask_recon_iterations
 
 
 def create_measurement_matrix(m, N, vec, do_shift_left=False):

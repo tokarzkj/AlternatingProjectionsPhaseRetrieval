@@ -22,7 +22,7 @@ def display_forward_and_backward_time_shift_equivalence():
                                                                    x=x,
                                                                    mask=mask)
 
-    (mask_recon, _, _) = \
+    (mask_recon, error, _) = \
         measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations,
                                                                             False)
 
@@ -32,3 +32,4 @@ def display_forward_and_backward_time_shift_equivalence():
         mask_recon_sample = mask_recon[idx]
 
         print('{:e}, {:e}, {:e}'.format(mask_sample, mask_recon_sample, mask_sample - mask_recon_sample))
+    print('The overall error is {:e}'.format(error))
