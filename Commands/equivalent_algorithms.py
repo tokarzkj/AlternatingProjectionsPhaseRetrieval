@@ -26,9 +26,9 @@ def display_forward_and_backward_time_shift_equivalence():
         measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations,
                                                                             False)
 
-    print('x_recon, mask_recon', 'x_recon - mask_recon')
+    print('mask, mask_recon', 'mask - mask_recon')
     for idx in range(0, len(x_recon)):
-        x_sample = x_recon[idx]
-        mask_sample = mask_recon[idx]
+        mask_sample = mask[idx]
+        mask_recon_sample = mask_recon[idx]
 
-        print('{:e}, {:e}, {:e}'.format(mask[idx], mask_sample, x_sample - mask_sample))
+        print('{:e}, {:e}, {:e}'.format(mask_sample, mask_recon_sample, mask_sample - mask_recon_sample))
