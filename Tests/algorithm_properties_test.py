@@ -13,8 +13,6 @@ def test_forward_and_backward_time_shift_equivalence():
 
     x = np.random.rand(N) + 1J * np.random.rand(N)
     mask = np.random.rand(N) + 1J * np.random.rand(N)
-    mask_estimate = perturb_vec(mask)
-    x_estimate = perturb_vec(x)
 
     (_, x_recon, _, signal_error, signal_recon_iterations) = \
         measurement.modified_alternating_phase_projection_recovery(N, m,

@@ -159,10 +159,10 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
     perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
     perturbation = np.multiply(perturbation, 1 / np.power(10, 6))
 
-    perturbed_A = np.subtract(B, perturbation)
-    inverse_perturbed_A = scipy.linalg.pinv(perturbed_A)
-    mask_recon, mask_recon_iterations = iterative_signal_reconstruction(perturbed_A, N, b, inverse_perturbed_A,
-                                                                     number_iterations)
+    perturbed_B = np.subtract(B, perturbation)
+    inverse_perturbed_B = scipy.linalg.pinv(perturbed_B)
+    mask_recon, mask_recon_iterations = iterative_signal_reconstruction(perturbed_B, N, b, inverse_perturbed_B,
+                                                                        number_iterations)
 
     phasefac = np.matmul(np.conjugate(mask_recon).T, mask) / np.matmul(np.conjugate(mask).T, mask)
     x_recon = np.multiply(mask_recon, signum(phasefac))
