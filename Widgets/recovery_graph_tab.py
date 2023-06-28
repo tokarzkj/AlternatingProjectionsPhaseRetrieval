@@ -97,8 +97,9 @@ class RecoveryGraphTab(QWidget):
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
 
-        (x, x_recon, phasefac, error, _) = measurement.modified_alternating_phase_projection_recovery(N, m, number_iterations, seed,
-                                                                                                   do_add_noise)
+        signal, mask = utilities.create_signal_and_mask(seed, N)
+        (x, x_recon, phasefac, error, _) = measurement.modified_alternating_phase_projection_recovery(N, m, number_iterations,
+                                                                                                   do_add_noise, signal, mask)
 
         print(error)
 

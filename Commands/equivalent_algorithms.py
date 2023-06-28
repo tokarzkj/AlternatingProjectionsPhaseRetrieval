@@ -15,10 +15,9 @@ def display_forward_and_backward_time_shift_equivalence():
     (_, x_recon, _, signal_error, _) = \
         measurement.modified_alternating_phase_projection_recovery(N, m,
                                                                    number_iterations,
-                                                                   0,
                                                                    False,
-                                                                   x=x,
-                                                                   mask=mask)
+                                                                   x,
+                                                                   mask)
 
     print('x, x_recon', 'x - x_recon')
     for idx in range(0, len(x_recon)):

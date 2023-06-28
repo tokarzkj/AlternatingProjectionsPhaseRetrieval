@@ -17,10 +17,9 @@ def test_forward_and_backward_time_shift_equivalence():
     (_, x_recon, _, signal_error, signal_recon_iterations) = \
         measurement.modified_alternating_phase_projection_recovery(N, m,
                                                                    number_iterations,
-                                                                   0,
                                                                    False,
-                                                                   x=x,
-                                                                   mask=mask)
+                                                                   x,
+                                                                   mask)
 
     (mask_recon, _, _) = \
         measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations,
