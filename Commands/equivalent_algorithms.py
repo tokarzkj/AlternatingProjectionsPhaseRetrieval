@@ -12,7 +12,7 @@ def display_forward_and_backward_time_shift_equivalence():
     x = np.random.rand(N) + 1J * np.random.rand(N)
     mask = np.random.rand(N) + 1J * np.random.rand(N)
 
-    (_, x_recon, _, signal_error, _) = \
+    (_, x_recon, _, signal_error, signal_iterations) = \
         measurement.modified_alternating_phase_projection_recovery(N, m,
                                                                    number_iterations,
                                                                    False,
@@ -25,9 +25,9 @@ def display_forward_and_backward_time_shift_equivalence():
         x_recon_sample = x_recon[idx]
 
         print('{:e}, {:e}, {:e}'.format(x_sample, x_recon_sample, x_sample - x_recon_sample))
-    print('The overall error is {:e}'.format(signal_error))
+    print('The overall error for the signal recovery is {:e}'.format(signal_error))
 
-    (mask_recon, mask_error, _) = \
+    (mask_recon, mask_error, mask_iterations) = \
         measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations,
                                                                             False)
 
@@ -40,4 +40,12 @@ def display_forward_and_backward_time_shift_equivalence():
         mask_recon_sample = mask_recon[idx]
 
         print('{:e}, {:e}, {:e}'.format(mask_sample, mask_recon_sample, mask_sample - mask_recon_sample))
-    print('The overall error is {:e}'.format(mask_error))
+    print('The overall error for the mask recovery is {:e}'.format(mask_error))
+
+    print("#############################################################################################")
+    print("#############################################################################################")
+    print("Iteration Number, Signal Iteration Err, Mask Iteration Err")
+    for k in signal_iterations.keys():
+        signal_iter_err = np.linalg.norm(x - signal_iterations[k]) / np.linalg.norm(x)
+        mask_iter_err = np.linalg.norm(mask - mask_iterations[k]) / np.linalg.norm(mask)
+        print('{:d}, {:e}, {:e}'.format(k, signal_iter_err, mask_iter_err))

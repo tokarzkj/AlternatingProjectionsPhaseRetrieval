@@ -1,6 +1,6 @@
 import numpy as np
 import scipy
-from numpy import imag
+from collections import OrderedDict
 
 from utilities import perturb_vec, simulate_noise_in_measurement, signum
 
@@ -154,11 +154,11 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
                                                                         number_iterations)
 
     phasefac = np.matmul(np.conjugate(mask_recon).T, mask) / np.matmul(np.conjugate(mask).T, mask)
-    x_recon = np.multiply(mask_recon, signum(phasefac))
+    mask_recon = np.multiply(mask_recon, signum(phasefac))
 
-    error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
+    error = np.linalg.norm(mask - mask_recon) / np.linalg.norm(mask)
 
-    return x_recon, error, mask_recon_iterations
+    return mask_recon, error, mask_recon_iterations
 
 
 def create_measurement_matrix(m, N, vec, do_shift_left=False):
@@ -196,7 +196,7 @@ def iterative_signal_reconstruction(measurement_matrix, N, b, inverse_A, number_
 
 
 def reconstructed_signal(signal, A, b, inverse_A, number_iterations):
-    reconstructed_signal_iterations = dict()
+    reconstructed_signal_iterations = OrderedDict()
     for i in range(0, number_iterations):
         temp = np.array(list(map(signum, np.matmul(A, signal))), dtype=np.complex_)
         signal = np.matmul(inverse_A, np.multiply(b, temp))
