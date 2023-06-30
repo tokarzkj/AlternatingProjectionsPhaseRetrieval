@@ -139,8 +139,8 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
     N = len(x)
     B = create_measurement_matrix(m, N, x, do_shift_left=True)
 
-    # Measurements (magnitude of masked DFT coefficients)
-    b = np.abs(np.matmul(B, x))
+    # Measurements are multiplied by mask instead of x
+    b = np.abs(np.matmul(B, mask))
 
     if do_add_noise:
         b = simulate_noise_in_measurement(b)
