@@ -181,27 +181,27 @@ def create_measurement_matrix(m, N, vec, do_shift_left=False):
     return A
 
 
-def iterative_signal_reconstruction(measurement_matrix, N, b, inverse_A, number_iterations):
+def iterative_signal_reconstruction(mmat, N, b, inv_mmat, number_iterations):
     """
     The core method for reconstructing x
-    :param measurement_matrix:
+    :param mmat: The measurement matrix
     :param N: Number of samples
     :param b: N length vector
-    :param inverse_A:
-    :param number_iterations:
+    :param inv_mmat: The psuedoinverse of the measurement matrix
+    :param number_iterations: The number of times to repeat the algorithm
     :return:
     """
     signal_recon = np.random.rand(N) + 1J * np.random.rand(N)
-    return reconstructed_signal(signal_recon, measurement_matrix, b, inverse_A, number_iterations)
+    return reconstructed_signal(signal_recon, mmat, b, inv_mmat, number_iterations)
 
 
-def reconstructed_signal(signal, A, b, inverse_A, number_iterations):
+def reconstructed_signal(signal_recon, mmat, b, inv_mmat, number_iterations,):
     reconstructed_signal_iterations = OrderedDict()
     for i in range(0, number_iterations):
-        temp = np.array(list(map(signum, np.matmul(A, signal))), dtype=np.complex_)
-        signal = np.matmul(inverse_A, np.multiply(b, temp))
+        temp = np.array(list(map(signum, np.matmul(mmat, signal_recon))), dtype=np.complex_)
+        signal_recon = np.matmul(inv_mmat, np.multiply(b, temp))
 
         if i % 50 == 0:
-            reconstructed_signal_iterations[i] = signal
+            reconstructed_signal_iterations[i] = signal_recon
 
-    return signal, reconstructed_signal_iterations
+    return signal_recon, reconstructed_signal_iterations

@@ -1,7 +1,7 @@
 import numpy as np
 
 import measurement
-from utilities import perturb_vec
+from utilities import perturb_vec, signum
 
 
 def display_forward_and_backward_time_shift_equivalence():
@@ -46,6 +46,13 @@ def display_forward_and_backward_time_shift_equivalence():
     print("#############################################################################################")
     print("Iteration Number, Signal Iteration Err, Mask Iteration Err")
     for k in signal_iterations.keys():
-        signal_iter_err = np.linalg.norm(x - signal_iterations[k]) / np.linalg.norm(x)
-        mask_iter_err = np.linalg.norm(mask - mask_iterations[k]) / np.linalg.norm(mask)
+        signal_recon_iter = signal_iterations[k]
+        phasefac = np.matmul(np.conjugate(signal_recon_iter).T, x) / np.matmul(np.conjugate(x).T, x)
+        signal_recon_iter = np.multiply(signal_recon_iter, signum(phasefac))
+        signal_iter_err = np.linalg.norm(x - signal_recon_iter) / np.linalg.norm(x)
+
+        mask_recon_iter = mask_iterations[k]
+        phasefac = np.matmul(np.conjugate(mask_recon_iter).T, mask) / np.matmul(np.conjugate(mask).T, mask)
+        mask_recon_iter = np.multiply(mask_recon_iter, signum(phasefac))
+        mask_iter_err = np.linalg.norm(mask - mask_recon_iter) / np.linalg.norm(mask)
         print('{:d}, {:e}, {:e}'.format(k, signal_iter_err, mask_iter_err))
