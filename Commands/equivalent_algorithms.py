@@ -15,7 +15,6 @@ def display_forward_and_backward_time_shift_equivalence():
     (_, x_recon, _, signal_error, signal_iterations) = \
         measurement.modified_alternating_phase_projection_recovery(N, m,
                                                                    number_iterations,
-                                                                   False,
                                                                    x,
                                                                    mask)
 
@@ -28,8 +27,7 @@ def display_forward_and_backward_time_shift_equivalence():
     print('The overall error for the signal recovery is {:e}'.format(signal_error))
 
     (mask_recon, mask_error, mask_iterations) = \
-        measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations,
-                                                                            False)
+        measurement.modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations)
 
     print("#############################################################################################")
     print("#############################################################################################")

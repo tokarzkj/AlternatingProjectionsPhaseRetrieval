@@ -76,10 +76,13 @@ class RecoveryGraphTab(QWidget):
         # If you leave it blank the odds of success will be dependent on number of masks
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
+        noise = 0
+        if do_add_noise:
+            noise = 40
 
         (x, mask) = utilities.create_signal_and_mask(seed, N)
         (x_recon, phasefac, error, _) = measurement.alternating_phase_projection_recovery(N, m, number_iterations,
-                                                                                          do_add_noise, x, mask)
+                                                                                          x, mask, noise=noise)
 
         print(error)
 
@@ -96,10 +99,13 @@ class RecoveryGraphTab(QWidget):
         # If you leave it blank the odds of success will be dependent on number of masks
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
+        noise = 0
+        if do_add_noise:
+            noise = 40
 
         signal, mask = utilities.create_signal_and_mask(seed, N)
         (x, x_recon, phasefac, error, _) = measurement.modified_alternating_phase_projection_recovery(N, m, number_iterations,
-                                                                                                   do_add_noise, signal, mask)
+                                                                                                      signal, mask, noise=noise)
 
         print(error)
 
@@ -116,15 +122,18 @@ class RecoveryGraphTab(QWidget):
         # If you leave it blank the odds of success will be dependent on number of masks
         seed = self.seed_value.text()
         do_add_noise = self.snr_checkbox.isChecked()
+        noise = 0
+        if do_add_noise:
+            noise = 40
 
         (x, mask) = utilities.create_signal_and_mask(seed, N)
 
         (x_recon, _, _, phasefac, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                    N, m,
                                                                                                    number_iterations,
-                                                                                                   do_add_noise,
                                                                                                    x,
-                                                                                                   mask)
+                                                                                                   mask,
+                                                                                                   noise=noise)
 
         print(error)
 

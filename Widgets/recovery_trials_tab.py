@@ -64,7 +64,7 @@ class RecoveryTrialsTab(QWidget):
                 for i in range(0, trials_count):
                     (x, mask) = utilities.create_signal_and_mask(3140, n)
                     (_, _, error, _) = measurement.alternating_phase_projection_recovery(n, m, self.number_iterations,
-                                                                                      False, x, mask)
+                                                                                         x, mask)
                     trial_errors[i] = error
                 results.append(np.average(trial_errors))
 
@@ -86,7 +86,7 @@ class RecoveryTrialsTab(QWidget):
                 for i in range(0, trials_count):
                     signal, mask = utilities.create_signal_and_mask(3140, n)
                     (_, _, _, error, _) = measurement.modified_alternating_phase_projection_recovery(n, m, self.number_iterations,
-                                                                                                  False, signal, mask)
+                                                                                                     signal, mask)
                     trial_errors[i] = error
                 results.append(np.average(trial_errors))
 
@@ -113,7 +113,7 @@ class RecoveryTrialsTab(QWidget):
                     (_, _, _, _, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                 n, m,
                                                                                                 self.number_iterations,
-                                                                                                False, x, mask)
+                                                                                                x, mask)
                     trial_errors[i] = error
                 results.append(np.average(trial_errors))
 

@@ -1,11 +1,8 @@
-import matplotlib.table
 import numpy as np
 from PySide6 import QtWidgets, QtCore
 from PySide6.QtGui import QStandardItemModel, QStandardItem
 from PySide6.QtWidgets import QWidget
 from matplotlib import pyplot as plt
-from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
-from matplotlib.backends.backend_qtagg import NavigationToolbar2QT
 from numpy import real, imag
 
 import measurement
@@ -107,14 +104,12 @@ class SignalMaskRecoveryDemo(QWidget):
             (_, x_recon, _, signal_error, signal_recon_iterations) = \
                 measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                            number_iterations,
-                                                                           False,
                                                                            x_estimate,
                                                                            mask)
 
             (_, mask_recon, _, mask_error, mask_recon_iterations) = \
                 measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                            number_iterations,
-                                                                           False,
                                                                            mask_estimate,
                                                                            x)
 
@@ -131,14 +126,12 @@ class SignalMaskRecoveryDemo(QWidget):
             (x_recon, _, _, _, signal_error,
              signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                               number_iterations,
-                                                                                                              False,
                                                                                                               x_estimate,
                                                                                                               mask_estimate)
 
             (mask_recon, _, _, _, mask_error,
              mask_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                             number_iterations,
-                                                                                                            False,
                                                                                                             mask_estimate,
                                                                                                             x_estimate)
 

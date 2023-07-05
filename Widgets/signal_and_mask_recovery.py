@@ -93,13 +93,11 @@ class SignalMaskRecovery(QWidget):
             x_estimate = perturb_vec(x)
             (_, x_recon, _, signal_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                        number_iterations,
-                                                                                                       False,
                                                                                                        x, mask_estimate)
             signal_trial_errors[i] = signal_error
 
             (_, mask_recon, _, mask_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                         number_iterations,
-                                                                                                        False,
                                                                                                         mask, x_estimate)
             mask_trial_errors[i] = mask_error
 
@@ -127,14 +125,12 @@ class SignalMaskRecovery(QWidget):
             x_estimate = perturb_vec(x)
             (_, x_recon, _, signal_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                        number_iterations,
-                                                                                                       False,
                                                                                                        x_estimate,
                                                                                                        mask_estimate)
             signal_trial_errors[i] = signal_error
 
             (_, mask_recon, _, mask_error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m,
                                                                                                         number_iterations,
-                                                                                                        False,
                                                                                                         mask_estimate,
                                                                                                         x_estimate)
             mask_trial_errors[i] = mask_error
@@ -155,8 +151,7 @@ class SignalTableView(QtWidgets.QTableView):
         mask_estimate = perturb_vec(mask)
 
         (_, x_recon, _, error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations,
-                                                                                            False,
-                                                                                            x, mask_estimate)
+                                                                                               x, mask_estimate)
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels(['x', 'recon x'])
         for idx, value in enumerate(x_recon):
@@ -176,8 +171,7 @@ class MaskTableView(QtWidgets.QTableView):
         x_estimate = perturb_vec(x)
 
         (_, mask_recon, _, error, _) = measurement.modified_alternating_phase_projection_recovery(self.N, m, number_iterations,
-                                                                                               False,
-                                                                                               mask, x_estimate)
+                                                                                                  mask, x_estimate)
 
         model = QStandardItemModel()
         model.setHorizontalHeaderLabels(['mask', 'recon mask'])

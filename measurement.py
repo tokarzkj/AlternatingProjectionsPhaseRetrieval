@@ -5,17 +5,17 @@ from collections import OrderedDict
 from utilities import perturb_vec, simulate_noise_in_measurement, signum
 
 
-def alternating_phase_projection_recovery(N, m, number_iterations, do_add_noise: bool,
-                                          x, mask):
+def alternating_phase_projection_recovery(N, m, number_iterations,
+                                          x, mask, noise: int = 0):
     """
     This is the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements
     :param N: Length of signal
     :param m: Number of masks
     :param number_iterations: Number of iterations for reconstruction process
-    :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
+    :param noise: Add noise, in decibels, to the phase-less measurement vector
     :return: Returns a tuple with the reconstructed signal, phase factors, and the error
     """
 
@@ -25,8 +25,8 @@ def alternating_phase_projection_recovery(N, m, number_iterations, do_add_noise:
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
 
-    if do_add_noise:
-        b = simulate_noise_in_measurement(b)
+    if noise > 0:
+        b = simulate_noise_in_measurement(b, noise)
 
     x_recon, x_recon_iterations = iterative_signal_reconstruction(A, N, b, inverse_A, number_iterations)
 
@@ -38,8 +38,8 @@ def alternating_phase_projection_recovery(N, m, number_iterations, do_add_noise:
     return x_recon, phasefac, error, x_recon_iterations
 
 
-def modified_alternating_phase_projection_recovery(N, m, number_iterations, do_add_noise: bool,
-                                                   x, mask):
+def modified_alternating_phase_projection_recovery(N, m, number_iterations,
+                                                   x, mask, noise: int = 0):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -47,9 +47,9 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, do_a
     :param N: Length of signal
     :param m: Number of masks
     :param number_iterations: Number of iterations for reconstruction process
-    :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
+    :param noise: Add noise, in decibels, to the phase-less measurement vector
     :return: Returns a tuple with the signal, reconstructed signal, phase factors, and the error
     """
     A = create_measurement_matrix(m, N, mask)
@@ -57,8 +57,8 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, do_a
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
 
-    if do_add_noise:
-        b = simulate_noise_in_measurement(b)
+    if noise > 0:
+        b = simulate_noise_in_measurement(b, noise)
 
     perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
     perturbation = np.multiply(perturbation, 1 / np.power(10, 6))
@@ -75,8 +75,8 @@ def modified_alternating_phase_projection_recovery(N, m, number_iterations, do_a
     return x, x_recon, phasefac, error, x_recon_iterations
 
 
-def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iterations, do_add_noise: bool,
-                                                               x, mask):
+def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iterations,
+                                                               x, mask, noise: int = 0):
     """
     This is similar to the basic algorithm for taking a signal with specified parameters and attempting to
     reconstruct using our simulated measurements. The major difference is the matrix A is perturbed before
@@ -86,9 +86,9 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     :param N: Length of signal
     :param m: Number of masks
     :param number_iterations: Number of iterations for reconstruction process
-    :param do_add_noise: Add noise to the phase-less measurement vector
     :param x: The signal to use for the recovery. Default value is None and random signal of length N is constructed
     :param mask: The mask to use for the recovery. Default value is None and random mask of length N is constructed
+    :param noise: Add noise, in decibels, to the phase-less measurement vector
     :return: Returns a tuple with the reconstructed signal, phase factors, the final error, and x_recon after iterations
     """
 
@@ -97,8 +97,8 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     # Measurements (magnitude of masked DFT coefficients)
     b = np.abs(np.matmul(A, x))
 
-    if do_add_noise:
-        b = simulate_noise_in_measurement(b)
+    if noise > 0:
+        b = simulate_noise_in_measurement(b, noise)
 
     x_recon = np.random.rand(N) + 1J * np.random.rand(N)
     mask_approx = perturb_vec(mask)
@@ -125,7 +125,7 @@ def alternating_phase_projection_recovery_with_error_reduction(N, m, number_iter
     return x_recon, mask, mask_approx, phasefac, error, progressive_errors
 
 
-def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations, do_add_noise: bool):
+def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_iterations, noise: int = 0):
     """
     The purpose of this method is to prove that this method is equivalent to the modified_alternating_phase_projection_recovery.
     Instead of computing x_n * m_(n-l) this method solves for the mask and computes x_(n+l) * m_n
@@ -133,8 +133,8 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
     :param x: An N length signal
     :param m: The number of shifted masks to generated from the mask param
     :param number_iterations: The number of iterations to use in the recovery process
-    :param do_add_noise: Add noise to simulate the real world
-    :return: Returns final x_recon, final error, and x_recon after every 50 iterations
+    :param noise: Add noise, in decibels, to the phase-less measurement vector
+    :return: Returns final reconstruction, final error, and x_recon after every 50 iterations
     """
     N = len(x)
     B = create_measurement_matrix(m, N, x, do_shift_left=True)
@@ -142,8 +142,8 @@ def modified_alternating_phase_projection_recovery_for_mask(mask, x, m, number_i
     # Measurements are multiplied by mask instead of x
     b = np.abs(np.matmul(B, mask))
 
-    if do_add_noise:
-        b = simulate_noise_in_measurement(b)
+    if noise > 0:
+        b = simulate_noise_in_measurement(b, noise)
 
     perturbation = np.random.rand(m, N) + 1J * np.random.rand(m, N)
     perturbation = np.multiply(perturbation, 1 / np.power(10, 6))
