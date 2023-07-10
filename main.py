@@ -10,7 +10,7 @@ if __name__ == '__main__':
     print("Enter GUI or CLI?")
     cmd = input()
 
-    if cmd == 'GUI':
+    if cmd.lower() == 'gui':
         app = QApplication(sys.argv)
         # Create and show the form
         mainpage = UI.MainPage()
@@ -18,15 +18,18 @@ if __name__ == '__main__':
         mainpage.show()
         # Run the main Qt loop
         sys.exit(app.exec())
-    elif cmd == 'CLI':
+    elif cmd.lower() == 'cli':
         print("Enter command")
         cmd = input()
 
-        if cmd == 'time shift equivalence':
+        if cmd.lower() == 'time shift equivalence':
             display_forward_and_backward_time_shift_equivalence()
-        elif cmd == "Noise Reports":
+        elif cmd.lower() == "noise reports":
             report_tables.unknown_mask_accuracy_vs_noise()
             report_tables.unknown_signal_and_mask_accuracy_vs_noise()
+        elif cmd.lower() == "iteration accuracy":
+            report_tables.unknown_mask_iteration_vs_error()
+            report_tables.unknown_signal_and_mask_iteration_vs_error()
 
 
 

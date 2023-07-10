@@ -10,18 +10,18 @@ def perturb_vec(vec: np.array):
     return np.subtract(vec, perturbation)
 
 
-def simulate_noise_in_measurement(b, noise):
+def simulate_noise_in_measurement(b, snr):
     """
     This method simulates real-world noise in measurements
     :param b: The phaseless measurement
-    :param noise: The noise to add in decibels
+    :param snr: The signal to noise ratio in decibels
     :return: The phaseless measurement with noise
     """
-    snr = noise  # 40db of noise
+    snr = snr  # 40db of noise
     signal_power = np.square(np.linalg.norm(b)) / len(b)
     noise_power = signal_power / np.power(10, snr / 10)
-    noise = np.sqrt(noise_power) * np.random.rand(len(b))
-    b = np.add(b, noise)
+    snr = np.sqrt(noise_power) * np.random.rand(len(b))
+    b = np.add(b, snr)
 
     return b
 

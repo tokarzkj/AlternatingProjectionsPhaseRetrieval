@@ -123,14 +123,14 @@ class SignalMaskRecoveryDemo(QWidget):
                 m_recon = mask_recon_iterations[k]
                 mask_iterative_error[k] = np.linalg.norm(mask - m_recon) / np.linalg.norm(mask)
         elif self.algorithm_selection_box.currentText() == self.alternating_projection_algorithm_error_reduction:
-            (x_recon, _, _, _, signal_error,
-             signal_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
+            (x_recon, _, signal_error,
+             signal_iterative_error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                               number_iterations,
                                                                                                               x_estimate,
                                                                                                               mask_estimate)
 
-            (mask_recon, _, _, _, mask_error,
-             mask_iterative_error) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
+            (mask_recon, _, mask_error,
+             mask_iterative_error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(self.N, m,
                                                                                                             number_iterations,
                                                                                                             mask_estimate,
                                                                                                             x_estimate)

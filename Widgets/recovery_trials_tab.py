@@ -110,7 +110,7 @@ class RecoveryTrialsTab(QWidget):
                 for i in range(0, trials_count):
                     print('Starting trial {trial:n} with {samples:n} samples'.format(trial=i, samples=n))
                     (x, mask) = utilities.create_signal_and_mask(3140, n)
-                    (_, _, _, _, error, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
+                    (_, _, error, _, _) = measurement.alternating_phase_projection_recovery_with_error_reduction(
                                                                                                 n, m,
                                                                                                 self.number_iterations,
                                                                                                 x, mask)
