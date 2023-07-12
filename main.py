@@ -30,6 +30,9 @@ if __name__ == '__main__':
         elif cmd.lower() == "iteration accuracy":
             report_tables.unknown_mask_iteration_vs_error()
             report_tables.unknown_signal_and_mask_iteration_vs_error()
+        elif cmd.lower() == "sample timing":
+            report_tables.unknown_mask_sample_size_vs_time()
+            report_tables.unknown_signal_and_unknown_mask_sample_size_vs_time()
 
 
 

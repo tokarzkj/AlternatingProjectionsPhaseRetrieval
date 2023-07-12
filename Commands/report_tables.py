@@ -1,3 +1,5 @@
+import time
+
 import numpy as np
 import tabulate
 from matplotlib import pyplot as plt
@@ -56,8 +58,9 @@ def unknown_signal_and_mask_accuracy_vs_noise():
     for snr in snrs:
         print("Calculating with noise " + str(snr))
         errors = np.zeros(trial_count)
-
+        print("Beginning snr " + str(snr))
         for i in range(0, trial_count):
+            print("Beginning trial " + str(i))
             signal, mask = utilities.create_signal_and_mask(0, N)
             (_, _, error, _, _) = \
                 measurement.alternating_phase_projection_recovery_with_error_reduction(N, m, 250, signal, mask, snr)
@@ -80,7 +83,7 @@ def unknown_signal_and_mask_accuracy_vs_noise():
 
 
 def unknown_mask_iteration_vs_error():
-    trial_count = 2
+    trial_count = 25
     N = 25
     m = 8 * N
     iterations = 600
@@ -123,32 +126,22 @@ def unknown_mask_iteration_vs_error():
 
 
 def unknown_signal_and_mask_iteration_vs_error():
-    trial_count = 2
+    trial_count = 25
     N = 25
     m = 8 * N
-    iterations = 600
 
     error_recovery_results = dict()
-    error_recovery_results[iterations] = np.empty(trial_count)
-    for i in range(0, trial_count):
-        signal, mask = utilities.create_signal_and_mask(0, N)
+    for iter_count in range(100, 700, 100):
+        error_recovery_results[iter_count] = np.empty(trial_count)
+        print("Iteration Count " + str(iter_count))
+        for i in range(0, trial_count):
+            print("Beginning trial " + str(i))
+            signal, mask = utilities.create_signal_and_mask(0, N)
 
-        (_, _, final_error, _, signal_recon_iter) = \
-            measurement.alternating_phase_projection_recovery_with_error_reduction(N, m, iterations, signal, mask)
+            (_, _, final_error, _, _) = \
+                measurement.alternating_phase_projection_recovery_with_error_reduction(N, m, iter_count, signal, mask)
 
-        for k in signal_recon_iter.keys():
-            signal_recon = signal_recon_iter[k]
-            phasefac = np.matmul(np.conjugate(signal_recon).T, signal) / np.matmul(np.conjugate(signal).T, signal)
-            signal_recon = np.multiply(signal_recon, utilities.signum(phasefac))
-            signal_iter_err = np.linalg.norm(signal - signal_recon) / np.linalg.norm(signal)
-
-            if k in error_recovery_results:
-                error_recovery_results[k][i] = signal_iter_err
-            else:
-                error_recovery_results[k] = np.empty(trial_count)
-                error_recovery_results[k][i] = signal_iter_err
-
-        error_recovery_results[iterations][i] = final_error
+            error_recovery_results[iter_count][i] = final_error
 
     avg_error_reduced_results = dict()
     for k in error_recovery_results.keys():
@@ -159,4 +152,66 @@ def unknown_signal_and_mask_iteration_vs_error():
     avg_error_reduced_results = [(k, v) for k, v in avg_error_reduced_results.items()]
 
     table = tabulate.tabulate(avg_error_reduced_results, headers=["Iteration", "Avg Error"], tablefmt="latex_raw")
+    print(table)
+
+
+def unknown_mask_sample_size_vs_time():
+    trials_count = 25
+    N = [10, 20, 30, 40, 50]
+
+    timing_results = dict()
+    for n in N:
+        timing_results[n] = np.empty(trials_count)
+        m = 8 * n
+        for i in range(0, trials_count):
+            signal, mask = utilities.create_signal_and_mask(0, n)
+
+            # start watch
+            start = time.time()
+            measurement.modified_alternating_phase_projection_recovery(n, m, 600, signal, mask)
+            end = time.time()
+
+            timing_results[n][i] = end - start
+            # end watch
+
+    avg_iter_time_results = []
+    for k in timing_results.keys():
+        iter_times = timing_results[k]
+        iter_avg_time = np.average(iter_times)
+        avg_iter_time_results.append((k, iter_avg_time))
+
+    table = tabulate.tabulate(avg_iter_time_results, headers=["Sample Size", "Avg Time"], tablefmt="latex_raw")
+    print(table)
+
+
+def unknown_signal_and_unknown_mask_sample_size_vs_time():
+    trials_count = 25
+    N = [10, 20, 30, 40, 50]
+
+    timing_results = dict()
+    for n in N:
+        timing_results[n] = np.empty(trials_count)
+        m = 8 * n
+        print("Samples: " + str(n))
+        for i in range(0, trials_count):
+            print("Beginning trial: " + str(i))
+            signal, mask = utilities.create_signal_and_mask(0, n)
+
+            # start watch
+            start = time.time()
+            measurement.alternating_phase_projection_recovery_with_error_reduction(n, m, 600, signal, mask)
+            end = time.time()
+
+            run_time = end - start
+            timing_results[n][i] = run_time
+            print("Trial: " + str(i) + " took " + str(run_time))
+            # end watch
+
+    avg_iter_time_results = []
+    for k in timing_results.keys():
+        iter_times = timing_results[k]
+        iter_avg_time = np.average(iter_times)
+        avg_iter_time_results.append((k, iter_avg_time))
+
+    table = tabulate.tabulate(avg_iter_time_results, headers=["Sample Size", "Avg Time"], tablefmt="latex_raw")
     print(table)
