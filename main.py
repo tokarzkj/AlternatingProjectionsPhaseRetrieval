@@ -22,6 +22,8 @@ if __name__ == '__main__':
         print("Enter command")
         cmd = input()
 
+
+
         if cmd.lower() == 'time shift equivalence':
             display_forward_and_backward_time_shift_equivalence()
         elif cmd.lower() == "noise reports":
