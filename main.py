@@ -3,6 +3,7 @@ import sys
 from PySide6.QtWidgets import QApplication
 
 import UI
+import measurement_2d
 from Commands import report_tables
 from Commands.equivalent_algorithms import display_forward_and_backward_time_shift_equivalence
 
@@ -35,6 +36,8 @@ if __name__ == '__main__':
         elif cmd.lower() == "sample timing":
             report_tables.unknown_mask_sample_size_vs_time()
             report_tables.unknown_signal_and_unknown_mask_sample_size_vs_time()
+        elif cmd.lower() == "2d":
+            measurement_2d.alternating_projection_recovery_2d(70, 70)
 
 
 
