@@ -11,11 +11,11 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
     element_count = n1 * n2
 
     # ToDo: Read in an actual image
-    x1 = Image.open('./Images/coins.png').convert("L")
+    x1 = Image.open('./Images/IMG_2103.JPG').convert("L")
     x1 = x1.resize((n1, n2))
     x1 = np.asarray(x1)
 
-    x2 = Image.open('./Images/cameraman.png').convert("L")
+    x2 = Image.open('./Images/IMG_2068.JPG').convert("L")
     x2 = x2.resize((n1, n2))
     x2 = np.asarray(x2)
 
