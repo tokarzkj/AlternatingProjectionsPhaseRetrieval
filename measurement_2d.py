@@ -35,12 +35,13 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
         fft_output = scipy.fft.fft2(std_basis)
         dft2d_matrix[:, i] = np.reshape(fft_output, element_count)
 
-    mask = np.random.rand(element_count) + 1J * np.random.rand(element_count)
+    mask = np.random.rand(n1, n2) + 1J * np.random.rand(n1, n2)
 
     for i in range(0, int(m / element_count)):
         (row_idx, col_idx) = np.unravel_index(i, (n1, n2))
         shifted_mask = np.roll(mask, (row_idx, col_idx))
-        measurement_matrix[i * element_count: i * element_count + element_count] = np.multiply(shifted_mask, np.diag(shifted_mask))
+        vec_shifted_mask = shifted_mask.reshape(element_count)
+        measurement_matrix[i * element_count: i * element_count + element_count] = np.matmul(dft2d_matrix, np.diag(vec_shifted_mask))
 
     inv_measurement_matrix = scipy.linalg.pinv(measurement_matrix)
     b = np.abs(np.matmul(measurement_matrix, x.reshape(element_count)))

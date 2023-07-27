@@ -37,7 +37,7 @@ if __name__ == '__main__':
             report_tables.unknown_mask_sample_size_vs_time()
             report_tables.unknown_signal_and_unknown_mask_sample_size_vs_time()
         elif cmd.lower() == "2d":
-            measurement_2d.alternating_projection_recovery_2d(70, 70)
+            measurement_2d.alternating_projection_recovery_2d(40, 42)
 
 
 
