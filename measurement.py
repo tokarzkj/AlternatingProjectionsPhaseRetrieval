@@ -165,6 +165,7 @@ def create_measurement_matrix(m, N, vec, do_shift_left=False):
     A = np.zeros((m, N), dtype=np.complex_)
 
     # Create a diagonal matrix of 1s
+    # ToDo: Replace with the np.diag function I found
     diag = np.zeros((N, N))
     for i in range(0, N):
         diag[i][i] = 1

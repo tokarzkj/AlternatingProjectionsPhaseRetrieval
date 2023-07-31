@@ -59,8 +59,18 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
 
     fig , (ax1, ax2) = plt.subplots(2, 2)
 
+    ax1[0].set_xticks([])
+    ax1[0].set_yticks([])
+    ax1[1].set_xticks([])
+    ax1[1].set_yticks([])
+
     ax1[0].imshow(np.real(x))
     ax1[1].imshow(np.imag(x))
+
+    ax2[0].set_xticks([])
+    ax2[0].set_yticks([])
+    ax2[1].set_xticks([])
+    ax2[1].set_yticks([])
 
     ax2[0].imshow(np.real(x_recon))
     ax2[1].imshow(np.imag(x_recon))
