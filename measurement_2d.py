@@ -51,15 +51,11 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
         temp = np.array(list(map(signum, np.matmul(measurement_matrix, x_recon))), dtype=np.complex_)
         x_recon = np.matmul(inv_measurement_matrix, np.multiply(b, temp))
 
-    # ToDo: Once we read in an image as a matrix we will need to vectorize x here
-
     vec_x = x.reshape(element_count)
     phasefac = np.matmul(np.conjugate(x_recon).T, vec_x) / np.matmul(np.conjugate(vec_x).T, vec_x)
     x_recon = np.multiply(x_recon, signum(phasefac))
 
-
-
-    x_recon = x_recon.reshape(n1, n2)
+    x_recon = x_recon.reshape(n2, n1)
 
     fig , (ax1, ax2) = plt.subplots(2, 2)
 
