@@ -1,7 +1,10 @@
+import time
+
 import numpy as np
 import scipy.fft
 from matplotlib import pyplot as plt
 
+import utilities
 from utilities import signum
 from PIL import Image
 
@@ -24,16 +27,9 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
 
     x = x1 + 1J * x2
 
-    measurement_matrix = np.zeros((m, element_count), dtype=np.complex_)
     dft2d_matrix = create_dft2d_matrix(element_count, n1, n2)
-
     mask = np.random.rand(n1, n2) + 1J * np.random.rand(n1, n2)
-
-    for i in range(0, int(m / element_count)):
-        (row_idx, col_idx) = np.unravel_index(i, (n1, n2))
-        shifted_mask = np.roll(mask, (row_idx, col_idx))
-        vec_shifted_mask = shifted_mask.reshape(element_count)
-        measurement_matrix[i * element_count: i * element_count + element_count] = np.matmul(dft2d_matrix, np.diag(vec_shifted_mask))
+    measurement_matrix = create_measurement_matrix(dft2d_matrix, element_count, m, mask, n1, n2)
 
     inv_measurement_matrix = scipy.linalg.pinv(measurement_matrix)
     b = np.abs(np.matmul(measurement_matrix, x.reshape(element_count)))
@@ -72,6 +68,7 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
     ax2[1].imshow(np.imag(x_recon))
 
     plt.show()
+
 
 def alternating_projection_recovery_2d_with_error_reduction(n1, n2, number_iterations: int = 500):
     element_count = n1 * n2
@@ -91,24 +88,33 @@ def alternating_projection_recovery_2d_with_error_reduction(n1, n2, number_itera
 
     x = x1 + 1J * x2
 
-    measurement_matrix = np.zeros((m, element_count), dtype=np.complex_)
     dft2d_matrix = create_dft2d_matrix(element_count, n1, n2)
-
     mask = np.random.rand(n1, n2) + 1J * np.random.rand(n1, n2)
-
-    for i in range(0, int(m / element_count)):
-        (row_idx, col_idx) = np.unravel_index(i, (n1, n2))
-        shifted_mask = np.roll(mask, (row_idx, col_idx))
-        vec_shifted_mask = shifted_mask.reshape(element_count)
-        measurement_matrix[i * element_count: i * element_count + element_count] = np.matmul(dft2d_matrix, np.diag(vec_shifted_mask))
-
-    inv_measurement_matrix = scipy.linalg.pinv(measurement_matrix)
+    measurement_matrix = create_measurement_matrix(dft2d_matrix, element_count, m, mask, n1, n2)
     b = np.abs(np.matmul(measurement_matrix, x.reshape(element_count)))
 
+    mask_approx = utilities.perturb_matrix(mask)
     x_recon = np.array(np.random.rand(element_count) + 1J * np.random.rand(element_count))
-    for i in range(0, number_iterations):
-        temp = np.array(list(map(signum, np.matmul(measurement_matrix, x_recon))), dtype=np.complex_)
-        x_recon = np.matmul(inv_measurement_matrix, np.multiply(b, temp))
+    for idx in range(0, 25):
+        time_start = time.time()
+        A_approx = create_measurement_matrix(dft2d_matrix, element_count, m, mask_approx, n1, n2)
+        A_approx_pinv = scipy.linalg.pinv(A_approx)
+
+        for i in range(0, number_iterations):
+            temp = np.array(list(map(signum, np.matmul(A_approx, x_recon))), dtype=np.complex_)
+            x_recon = np.matmul(A_approx_pinv, np.multiply(b, temp))
+
+        M_approx = create_measurement_matrix(dft2d_matrix, element_count, m, x_recon.reshape(n1, n2), n1, n2)
+        M_approx_pinv = scipy.linalg.pinv(M_approx)
+
+        vec_mask_approx = mask_approx.reshape(element_count)
+        for i in range(0, number_iterations):
+            temp = np.array(list(map(signum, np.matmul(M_approx, vec_mask_approx))), dtype=np.complex_)
+            vec_mask_approx = np.matmul(M_approx_pinv, np.multiply(b, temp))
+
+        mask_approx = vec_mask_approx.reshape(n2, n1)
+        time_end = time.time()
+        print("Iteration " + str(idx) + ' took ' + str(time_end - time_start))
 
     vec_x = x.reshape(element_count)
     phasefac = np.matmul(np.conjugate(x_recon).T, vec_x) / np.matmul(np.conjugate(vec_x).T, vec_x)
@@ -141,6 +147,17 @@ def alternating_projection_recovery_2d_with_error_reduction(n1, n2, number_itera
     plt.show()
 
 
+def create_measurement_matrix(dft2d_matrix, element_count, m, mask, n1, n2):
+    measurement_matrix = np.zeros((m, element_count), dtype=np.complex_)
+    for i in range(0, int(m / element_count)):
+        (row_idx, col_idx) = np.unravel_index(i, (n1, n2))
+        shifted_mask = np.roll(mask, (row_idx, col_idx))
+        vec_shifted_mask = shifted_mask.reshape(element_count)
+        measurement_matrix[i * element_count: i * element_count + element_count] = np.matmul(dft2d_matrix,
+                                                                                             np.diag(vec_shifted_mask))
+    return measurement_matrix
+
+
 def create_dft2d_matrix(element_count, n1, n2):
     dft2d_matrix = np.zeros((element_count, element_count), dtype=np.complex_)
     for i in range(0, element_count):
@@ -149,4 +166,5 @@ def create_dft2d_matrix(element_count, n1, n2):
         std_basis = np.reshape(std_basis, (n1, n2))
         fft_output = scipy.fft.fft2(std_basis)
         dft2d_matrix[:, i] = np.reshape(fft_output, element_count)
+
     return dft2d_matrix

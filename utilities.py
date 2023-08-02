@@ -10,6 +10,14 @@ def perturb_vec(vec: np.array):
     return np.subtract(vec, perturbation)
 
 
+def perturb_matrix(matrix):
+    (n1, n2) = matrix.shape
+    perturbation = np.random.rand(n1, n2) + 1J * np.random.rand(n1, n2)
+    perturbation = np.multiply(perturbation, 1 / np.power(10, 2))
+
+    return np.subtract(matrix, perturbation)
+
+
 def simulate_noise_in_measurement(b, snr):
     """
     This method simulates real-world noise in measurements
