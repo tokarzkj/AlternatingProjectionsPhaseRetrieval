@@ -44,7 +44,8 @@ def alternating_projection_recovery_2d(n1, n2, number_iterations: int = 500):
     x_recon = np.multiply(x_recon, signum(phasefac))
 
     x_recon = x_recon.reshape(n2, n1)
-
+    sig_error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
+    print("The signal error is {:e}".format(sig_error))
     fig , (ax1, ax2) = plt.subplots(2, 2)
 
     ax1[0].set_xticks([])
@@ -124,7 +125,7 @@ def alternating_projection_recovery_2d_with_error_reduction(n1, n2, number_itera
     sig_error = np.linalg.norm(x - x_recon) / np.linalg.norm(x)
     print("The signal error is {:e}".format(sig_error))
 
-    fig , (ax1, ax2) = plt.subplots(2, 2)
+    fig, (ax1, ax2) = plt.subplots(2, 2)
 
     ax1[0].set_xticks([])
     ax1[0].set_yticks([])

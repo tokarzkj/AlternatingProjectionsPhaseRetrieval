@@ -68,3 +68,21 @@ def test_measurement_matrix_creation_using_fft():
             break
 
     assert foundInequality
+
+
+# Proving that reshaping works as we expect. This is to rule out an issue with the 2D algorithms
+def test_matrix_and_vector_reshaping():
+    orig_vec = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9])
+    orig_matrix = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+
+    vec_to_matrix = orig_vec.reshape(3, 3)
+    matrix_to_vec = orig_matrix.reshape(9)
+
+    assert np.array_equiv(orig_vec, matrix_to_vec)
+    assert np.array_equiv(orig_matrix, vec_to_matrix)
+
+    vec_to_matrix = np.reshape(orig_vec, (3, 3))
+    matrix_to_vec = np.reshape(orig_matrix, 9)
+
+    assert np.array_equiv(orig_vec, matrix_to_vec)
+    assert np.array_equiv(orig_matrix, vec_to_matrix)
